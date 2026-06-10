@@ -115,7 +115,7 @@ body{font-family:'Inter',sans-serif;background:#f5f6f8;color:#1f2733}
     <div class="px-5 py-4 border-b border-gray-100">
       <div class="flex items-center gap-2">
         <div id="sidebarLogo" class="w-9 h-9 rounded-lg bg-brand-500 flex items-center justify-center text-white font-extrabold text-lg clk" onclick="openConfig()" title="Configurações">O</div>
-        <div><div class="font-extrabold text-gray-900 leading-none">OmniLead</div><div id="clientNameDisplay" contenteditable="true" class="text-[11px] text-gray-400 mt-0.5" title="Clique para editar" onblur="saveClientName(this)">Clube Carvão</div></div>
+        <div><div class="font-extrabold text-gray-900 leading-none">OmniLead</div><div id="clientNameDisplay" contenteditable="true" class="text-[11px] text-gray-400 mt-0.5" title="Clique para editar" onblur="saveClientName(this)">Clubr</div></div>
       </div>
     </div>
     <nav class="flex-1 p-3 space-y-0.5 text-sm overflow-y-auto">
@@ -759,7 +759,7 @@ body{font-family:'Inter',sans-serif;background:#f5f6f8;color:#1f2733}
       <!-- EMPRESA -->
       <div>
         <div class="font-bold text-gray-700 mb-3 flex items-center gap-2">🏢 Empresa / White-label</div>
-        <div class="field-wrap"><div class="field-label">Nome do cliente</div><div contenteditable="true" class="text-sm font-semibold" id="cfgClientName" onblur="syncClientName(this)">Clube Carvão</div></div>
+        <div class="field-wrap"><div class="field-label">Nome do cliente</div><div contenteditable="true" class="text-sm font-semibold" id="cfgClientName" onblur="syncClientName(this)">Clubr</div></div>
         <div class="field-wrap"><div class="field-label">Segmento / tipo de negócio</div><div contenteditable="true" class="text-sm" id="cfgSegmento">Buffet & Eventos</div></div>
         <div class="field-wrap"><div class="field-label">Meta de receita mensal (R$)</div><div contenteditable="true" class="text-sm font-bold text-emerald-600" id="cfgMeta" onblur="syncMeta(this)">R$ 200.000</div></div>
         <div class="field-wrap"><div class="field-label">Ticket médio esperado (R$)</div><div contenteditable="true" class="text-sm" id="cfgTicket">R$ 55.000</div></div>
@@ -801,7 +801,7 @@ body{font-family:'Inter',sans-serif;background:#f5f6f8;color:#1f2733}
         <div class="field-wrap"><div class="field-label">Nome da IA SDR</div><div contenteditable="true" class="text-sm font-semibold">Sofia IA</div></div>
         <div class="field-wrap"><div class="field-label">Tom de voz da IA</div><select class="w-full text-sm bg-transparent outline-none"><option>Amigável e profissional</option><option>Formal / corporativo</option><option>Descontraído / casual</option><option>Urgente / vendas</option></select></div>
         <div class="field-wrap"><div class="field-label">Handoff automático para humano após (horas sem resposta)</div><div contenteditable="true" class="text-sm font-semibold">24</div></div>
-        <div class="field-wrap"><div class="field-label">1ª mensagem da IA</div><textarea id="cfgIAMsg" class="w-full text-sm bg-transparent outline-none resize-none" rows="3">Oi! Sou a Sofia, assistente do Clube Carvão 💛 Adorei seu contato! Para te enviar um orçamento personalizado, me conta: qual a data do seu evento?</textarea></div>
+        <div class="field-wrap"><div class="field-label">1ª mensagem da IA</div><textarea id="cfgIAMsg" class="w-full text-sm bg-transparent outline-none resize-none" rows="3">Oi! Sou a Sofia, assistente do Clubr 💛 Adorei seu contato! Para te enviar um orçamento personalizado, me conta: qual a data do seu evento?</textarea></div>
       </div>
 
       <!-- CANAIS -->
@@ -943,7 +943,7 @@ const todosMap={
 leads.forEach(l=>{l.todos=todosMap[l.nome]||[{txt:'Primeiro contato',done:l.st>0}];});
 
 /* ═══ PERSISTÊNCIA (localStorage — sobrevive ao reload) ═══ */
-const LS_KEY='omnilead_clube_carvao_v1';
+const LS_KEY='omnilead_clubr_v1';
 function persist(){
   try{
     const snap={
@@ -1160,7 +1160,7 @@ const proxCompras=[];
     </div>`).join('')+'</div>';
 })();
 
-/* ═══ AGENDA (fiel ao Falacomigo) ═══ */
+/* ═══ AGENDA ═══ */
 function agendaTab(id,el){
   document.getElementById('ag-proximos').classList.toggle('hidden',id!=='proximos');
   document.getElementById('ag-horarios').classList.toggle('hidden',id!=='horarios');
@@ -1267,7 +1267,7 @@ function connectNew(tipo){
   }
   if(tipo==='instagram'){
     openDrawer('📷 Conectar Instagram',`<p class="text-sm text-gray-500 mb-4">Instagram Direct + comentários via Meta Business. Conecta a conta comercial vinculada à sua página do Facebook.</p>
-      <div class="card p-5 text-center mb-4"><div class="text-4xl mb-2">📷</div><div class="text-sm text-gray-600 mb-3">Você será levado ao Meta para autorizar o acesso à conta @clubecarvao.</div><button onclick="conexoes.push({id:'ig'+Date.now(),canal:'instagram',nome:'@clubecarvao',tipo:'oficial',num:'Instagram DM',status:'conectado',metodo:'Meta Business',inst:'graph'});toast('Instagram conectado ✓');openCanais();" class="bg-brand-500 text-white px-5 py-2.5 rounded-lg font-semibold text-sm clk">🔵 Conectar com Meta</button></div>
+      <div class="card p-5 text-center mb-4"><div class="text-4xl mb-2">📷</div><div class="text-sm text-gray-600 mb-3">Você será levado ao Meta para autorizar o acesso à conta @clubr.</div><button onclick="conexoes.push({id:'ig'+Date.now(),canal:'instagram',nome:'@clubr',tipo:'oficial',num:'Instagram DM',status:'conectado',metodo:'Meta Business',inst:'graph'});toast('Instagram conectado ✓');openCanais();" class="bg-brand-500 text-white px-5 py-2.5 rounded-lg font-semibold text-sm clk">🔵 Conectar com Meta</button></div>
       <div class="space-y-2"><label class="field-wrap flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-brand-500 w-4 h-4"><span class="flex-1 text-sm">IA responde DMs automaticamente</span></label><label class="field-wrap flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-brand-500 w-4 h-4"><span class="flex-1 text-sm">IA responde comentários</span></label></div>
       <button onclick="openCanais()" class="w-full text-gray-400 text-xs py-2 clk mt-2">← voltar</button>`);
     return;
@@ -1288,7 +1288,7 @@ function connectFlow(id){
 /* ═══ TEMPLATES WHATSAPP OFICIAL (HSM Meta) ═══ */
 let waTemplates=[
   {id:'t1',nome:'reengajamento_evento',cat:'MARKETING',idioma:'pt_BR',status:'approved',corpo:'Oi {{1}}, ainda pensando no seu evento? 😊 Tenho datas abrindo no {{2}}. Posso segurar uma pra você sem compromisso?',botoes:['Quero saber mais','Agora não'],usos:0,motivo:''},
-  {id:'t2',nome:'confirmacao_degustacao',cat:'UTILITY',idioma:'pt_BR',status:'approved',corpo:'Sua degustação no Clube Carvão está confirmada para {{1}} às {{2}} 🍽️ Te esperamos!',botoes:['Confirmar presença','Reagendar'],usos:0,motivo:''},
+  {id:'t2',nome:'confirmacao_degustacao',cat:'UTILITY',idioma:'pt_BR',status:'approved',corpo:'Sua degustação no Clubr está confirmada para {{1}} às {{2}} 🍽️ Te esperamos!',botoes:['Confirmar presença','Reagendar'],usos:0,motivo:''},
   {id:'t3',nome:'lembrete_visita',cat:'UTILITY',idioma:'pt_BR',status:'approved',corpo:'Olá {{1}}! Lembrete da sua visita ao espaço amanhã às {{2}}. Qualquer coisa, é só responder por aqui.',botoes:[],usos:0,motivo:''},
   {id:'t4',nome:'pos_evento_nps',cat:'MARKETING',idioma:'pt_BR',status:'pending',corpo:'Oi {{1}}! Como foi seu evento conosco? 💛 Sua opinião vale muito — e quem indica ganha condição especial na próxima.',botoes:['Avaliar','Indicar alguém'],usos:0,motivo:''},
   {id:'t5',nome:'promo_data_remanescente',cat:'MARKETING',idioma:'pt_BR',status:'rejected',corpo:'{{1}}, ÚLTIMA CHANCE!!! Data com 50% OFF só HOJE, corre!!!',botoes:[],usos:0,motivo:'Linguagem promocional agressiva / excesso de pontuação. Meta exige tom equilibrado.'},
@@ -1351,7 +1351,7 @@ const convs=[];
 function renderInboxList(){if(!convs.length){document.getElementById('inboxList').innerHTML='<div class="p-8 text-center text-sm text-gray-400"><div class="text-4xl mb-2">💬</div>Nenhuma conversa ainda.<br>Conecte um canal e as conversas chegam aqui.</div>';return;}document.getElementById('inboxList').innerHTML=convs.map((c,i)=>{const l=leads.find(x=>x.nome===c.nome);const r=l?nextContactRec(l.lastContactH):{icon:'',label:''};return`<div onclick="selConv(${i})" class="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 clk ${i===curConv?'bg-brand-50':''}"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="font-semibold text-sm">${c.nome}</span>${byBadge(c.src)}</div><span class="text-[11px] text-gray-400">${c.t}</span></div><div class="flex items-center justify-between mt-1"><span class="text-xs text-gray-500 truncate max-w-[150px]">${c.last}</span>${c.ia?'<span class="chip bg-green-100 text-green-700">IA</span>':'<span class="chip bg-orange-100 text-orange-700">👤</span>'}</div>${l?`<div class="text-[10px] mt-0.5 ${lcClass[r.cor]||'text-gray-400'}">${r.icon} ${r.label}</div>`:''}</div>`;}).join('');}
 function selConv(i){curConv=i;renderInboxList();renderChat();renderAIPanel();}
 function renderChat(){const c=convs[curConv];if(!c){document.getElementById('chatName').textContent='Selecione uma conversa';document.getElementById('chatSub').textContent='';document.getElementById('chat').innerHTML='<div class="flex items-center justify-center h-full text-sm text-gray-400">Nenhuma conversa ativa.</div>';return;}document.getElementById('chatName').textContent=c.nome;document.getElementById('chatSub').textContent=c.sub;
- document.getElementById('chat').innerHTML=`<div class="flex"><div class="bg-white rounded-2xl rounded-tl-sm px-4 py-2 text-sm shadow-sm max-w-[75%]">Oi! Vi o trabalho de vocês 😍 quanto fica pra ${leads.find(l=>l.nome===c.nome)?.conv||'X'} convidados?</div></div><div class="flex justify-end"><div class="bg-brand-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 text-sm max-w-[75%]">Oi! Sou a Sofia, assistente do Clube Carvão 💛 Te mando 3 opções. Qual a data do casamento?</div></div><div class="text-center"><span class="chip bg-gray-200 text-gray-500">🤖 IA respondeu em 41s</span></div><div class="flex"><div class="bg-white rounded-2xl rounded-tl-sm px-4 py-2 text-sm shadow-sm max-w-[75%]">${leads.find(l=>l.nome===c.nome)?.ev||'em breve'}!</div></div><div class="flex justify-end"><div class="bg-brand-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 text-sm max-w-[75%]">Perfeito 🗓️ Enviei 3 orçamentos no e-mail. Posso agendar uma call com o Guto?</div></div>`;}
+ document.getElementById('chat').innerHTML=`<div class="flex"><div class="bg-white rounded-2xl rounded-tl-sm px-4 py-2 text-sm shadow-sm max-w-[75%]">Oi! Vi o trabalho de vocês 😍 quanto fica pra ${leads.find(l=>l.nome===c.nome)?.conv||'X'} convidados?</div></div><div class="flex justify-end"><div class="bg-brand-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 text-sm max-w-[75%]">Oi! Sou a Sofia, assistente do Clubr 💛 Te mando 3 opções. Qual a data do casamento?</div></div><div class="text-center"><span class="chip bg-gray-200 text-gray-500">🤖 IA respondeu em 41s</span></div><div class="flex"><div class="bg-white rounded-2xl rounded-tl-sm px-4 py-2 text-sm shadow-sm max-w-[75%]">${leads.find(l=>l.nome===c.nome)?.ev||'em breve'}!</div></div><div class="flex justify-end"><div class="bg-brand-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 text-sm max-w-[75%]">Perfeito 🗓️ Enviei 3 orçamentos no e-mail. Posso agendar uma call com o Guto?</div></div>`;}
 function renderAIPanel(){const c=convs[curConv];const l=c?(leads.find(x=>x.nome===c.nome)||leads[0]):null;if(!l){document.getElementById('aiPanel').innerHTML='<div class="p-8 text-center text-sm text-gray-400">O painel da IA aparece quando há uma conversa selecionada.</div>';return;}
  document.getElementById('aiPanel').innerHTML=`<div class="p-4"><div class="flex items-center gap-2 mb-3"><span class="text-sm font-bold">🧠 Painel da IA</span><span class="chip bg-green-100 text-green-700 ml-auto">score ${l.score}</span></div>
   <div class="bg-brand-500 text-white rounded-xl p-3 mb-3"><div class="text-[11px] opacity-80">PRÓXIMA AÇÃO</div><div class="text-sm font-semibold mt-0.5">${l.rec}</div><button onclick="fazerAgora('${l.nome}')" class="mt-2 bg-white/20 text-xs px-2.5 py-1 rounded-md clk">Fazer agora →</button></div>
@@ -1775,7 +1775,7 @@ function openMediaPicker(){
   openDrawer('📎 Enviar mídia salva',body);
 }
 
-/* ═══ CONSTRUTOR DE FLUXOS (fiel ao Falacomigo React Flow) ═══ */
+/* ═══ CONSTRUTOR DE FLUXOS ═══ */
 const nodeTypes=[
   {kind:'content',label:'Mensagem',icon:'💬',cor:'#3b6ef5',hint:'Envia texto. Dentro de 24h: qualquer canal. Proativo: e-mail/SMS.'},
   {kind:'menu',label:'Pergunta',icon:'❓',cor:'#f59e0b',hint:'Pergunta e espera a resposta do cliente.'},
@@ -1788,7 +1788,7 @@ const nodeTypes=[
 function ntype(k){return nodeTypes.find(n=>n.kind===k)||nodeTypes[0];}
 let fluxos=[
   {id:'f1',nome:'Qualificação inicial',trigger:'new_contact',nodes:[
-    {kind:'content',body:'Oi {nome}! 💛 Sou a Sofia do Clube Carvão. Vi seu interesse!'},
+    {kind:'content',body:'Oi {nome}! 💛 Sou a Sofia do Clubr. Vi seu interesse!'},
     {kind:'menu',body:'Pra te ajudar: qual a data do evento e quantos convidados?'},
     {kind:'action',body:'etiqueta: interessado'},
     {kind:'content',body:'Perfeito! Te mando 3 opções de orçamento agora 📋'},
