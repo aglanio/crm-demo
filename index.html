@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmniLead — CRM White-label · Agência Caverna</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},colors:{brand:{50:'#eef4ff',100:'#dbe6fe',500:'#3b6ef5',600:'#2f5ae0',700:'#2547b8'}}}}}</script>
+<style>
+body{font-family:'Inter',sans-serif;background:#f5f6f8;color:#1f2733}
+.card{background:#fff;border:1px solid #eceef1;border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06)}
+.nav-item{transition:all .15s;cursor:pointer}.nav-item:hover{background:#f0f2f5}
+.nav-item.active{background:#eef4ff;color:#2547b8;font-weight:600}
+.view{display:none}.view.active{display:block}
+.kpi{transition:transform .15s;cursor:pointer}.kpi:hover{transform:translateY(-2px);border-color:#c9d6f5}
+.col-scroll{max-height:calc(100vh - 230px);overflow-y:auto}
+.cb-tab{background:#f0f2f5;transition:all .15s}.cb-tab.active{background:#eef4ff;color:#2547b8;font-weight:600;box-shadow:0 1px 3px rgba(37,71,184,.12)}
+.tag-chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;margin:1px 2px 1px 0;white-space:nowrap}
+.tag-x{cursor:pointer;opacity:.5;font-size:9px}.tag-x:hover{opacity:1}
+.tag-filter{font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;white-space:nowrap;transition:all .12s}
+.tag-filter:hover{box-shadow:0 1px 4px rgba(0,0,0,.08)}.tag-filter.tf-on{background:#1f2733;color:#fff;border-color:#1f2733}
+.ag-tab{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}.ag-tab.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:#1f2733;font-weight:600}
+.chip{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;display:inline-block}
+.clk{cursor:pointer}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:#d6dae0;border-radius:8px}
+#drawer{transform:translateX(100%);transition:transform .25s ease}
+#drawer.open{transform:translateX(0)}
+#overlay{opacity:0;pointer-events:none;transition:opacity .2s}
+#overlay.open{opacity:1;pointer-events:auto}
+
+/* ── TIMELINE ── */
+.tl{position:relative;padding:0 0 8px 28px}
+.tl::before{content:'';position:absolute;left:9px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#3b6ef5 0%,#e5e7eb 100%)}
+.tl-item{position:relative;margin-bottom:18px}
+.tl-item:last-child{margin-bottom:0}
+.tl-dot{position:absolute;left:-24px;top:3px;width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px currentColor;font-size:7px;background:#fff;display:flex;align-items:center;justify-content:center}
+.tl-dot.blue{color:#3b6ef5}.tl-dot.green{color:#10b981}.tl-dot.amber{color:#f59e0b}
+.tl-dot.pink{color:#ec4899}.tl-dot.gray{color:#94a3b8}.tl-dot.red{color:#ef4444}.tl-dot.purple{color:#8b5cf6}
+.tl-body{background:#f8fafc;border:1px solid #eceef1;border-radius:10px;padding:10px 12px}
+.tl-date{font-size:10px;color:#94a3b8;margin-bottom:2px}
+.tl-title{font-size:13px;font-weight:600;color:#1f2733}
+.tl-detail{font-size:12px;color:#6b7280;margin-top:2px}
+
+/* ── SCORE DE CALL (SniperSell) ── */
+.score-bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.score-bar-label{font-size:11px;color:#6b7280;width:80px;flex-shrink:0}
+.score-bar-track{flex:1;height:6px;background:#f0f0f0;border-radius:4px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:4px;transition:width .4s}
+.score-ring{width:64px;height:64px;position:relative;flex-shrink:0}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+
+/* ── TABS ── */
+.dtab{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500;color:#6b7280;cursor:pointer;transition:all .15s;white-space:nowrap}
+.dtab.active{background:#eef4ff;color:#2547b8;font-weight:600}
+
+/* ── LAST CONTACT ── */
+.lc-ok{color:#10b981}.lc-warn{color:#f59e0b}.lc-hot{color:#ef4444}.lc-blue{color:#3b6ef5}
+
+/* ── CAMPANHA STATUS ── */
+.camp-bar{height:8px;border-radius:4px;background:#e5e7eb;overflow:hidden}
+.camp-bar-fill{height:100%;border-radius:4px}
+
+/* ── VINHA (voz) indicator ── */
+.voice-live{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ── METRIC FILTER PILLS ── */
+.mf-btn{padding:4px 12px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.mf-btn.active{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:#1f2733;font-weight:600}
+
+/* ── SEARCH BAR ── */
+#globalSearch{width:220px;transition:width .2s}
+#globalSearch:focus{width:300px;outline:none;border-color:#3b6ef5}
+
+/* ── MOBILE SIDEBAR ── */
+@media(max-width:767px){
+  aside.w-60{position:fixed;left:-240px;top:0;bottom:0;z-index:50;transition:left .25s ease}
+  aside.w-60.sidebar-open{left:0;box-shadow:4px 0 16px rgba(0,0,0,.15)}
+  #hamburger{display:flex}
+  main.flex-1{padding-left:0}
+}
+@media(min-width:768px){#hamburger{display:none}}
+
+/* ── PEND GROUP HEADER ── */
+.pend-group-hdr{font-size:11px;font-weight:700;padding:8px 16px;letter-spacing:.05em;text-transform:uppercase;background:#f8fafc;border-bottom:1px solid #eceef1;position:sticky;top:0;z-index:1}
+
+/* ── INLINE EDIT ── */
+[contenteditable="true"]{outline:none;transition:background .15s,box-shadow .15s;border-radius:6px;padding:2px 4px;margin:-2px -4px}
+[contenteditable="true"]:hover{background:#f0f4ff;box-shadow:0 0 0 1px #c9d6f5}
+[contenteditable="true"]:focus{background:#eef4ff;box-shadow:0 0 0 2px #3b6ef5;cursor:text}
+.edit-hint{font-size:10px;color:#94a3b8;font-weight:400;margin-left:4px;opacity:0;transition:opacity .15s}
+*:hover>.edit-hint,[contenteditable]:focus~.edit-hint{opacity:1}
+.field-label{font-size:11px;font-weight:600;color:#94a3b8;display:flex;align-items:center;gap:4px;margin-bottom:4px;user-select:none}
+.field-wrap{background:#f8fafc;border:1px solid #eceef1;border-radius:10px;padding:10px 12px;margin-bottom:10px;transition:border-color .15s}
+.field-wrap:focus-within{border-color:#3b6ef5;background:#fff}
+
+/* ── EMPTY STATE ── */
+.empty-col{text-align:center;padding:32px 12px;color:#94a3b8}
+.empty-col .empty-icon{font-size:2rem;margin-bottom:8px;opacity:.5}
+
+/* ── CONFIG MODAL ── */
+#configModal{display:none;position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.4);align-items:center;justify-content:center}
+#configModal.open{display:flex}
+#configModalBox{background:#fff;border-radius:20px;padding:28px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+</style>
+</head>
+<body class="antialiased">
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside id="sidebar" class="w-60 bg-white border-r border-gray-200 flex flex-col shrink-0">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <div class="flex items-center gap-2">
+        <div id="sidebarLogo" class="w-9 h-9 rounded-lg bg-brand-500 flex items-center justify-center text-white font-extrabold text-lg clk" onclick="openConfig()" title="Configurações">O</div>
+        <div><div class="font-extrabold text-gray-900 leading-none">OmniLead</div><div id="clientNameDisplay" contenteditable="true" class="text-[11px] text-gray-400 mt-0.5" title="Clique para editar" onblur="saveClientName(this)">Clube Carvão</div></div>
+      </div>
+    </div>
+    <nav class="flex-1 p-3 space-y-0.5 text-sm overflow-y-auto">
+      <div onclick="show('operacao',this)" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg">📊 <span>Operação</span></div>
+      <div onclick="show('funil',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">🗂️ <span>Funil</span></div>
+      <div onclick="show('clientes',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">👥 <span>Clientes</span><span class="ml-auto chip bg-emerald-100 text-emerald-700">0</span></div>
+      <div onclick="show('inbox',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">💬 <span>Inbox unificado</span></div>
+      <div onclick="show('followup',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">⏰ <span>Follow-up</span></div>
+      <div onclick="show('agenda',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">📅 <span>Agenda</span></div>
+      <div onclick="show('voz',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">🎙️ <span>Voz IA</span><span class="ml-auto chip bg-purple-100 text-purple-700">BETA</span></div>
+      <div onclick="show('campanhas',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">📣 <span>Campanhas</span></div>
+      <div onclick="show('pendencias',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">📌 <span>Pendências</span></div>
+      <div onclick="show('processo',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">🛠️ <span>Processo de venda</span></div>
+      <div onclick="show('monitor',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">🤖 <span>Monitor IA</span><span class="ml-auto chip bg-green-100 text-green-700 voice-live">● LIVE</span></div>
+      <div onclick="show('cerebro',this)" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg">🧠 <span>Cérebro IA</span></div>
+    </nav>
+    <div class="p-3 border-t border-gray-100 text-xs text-gray-500">
+      <div class="flex items-center gap-2 px-2 py-2">
+        <div id="userAvatar" class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold">G</div>
+        <span id="userNameDisplay" contenteditable="true" class="font-medium text-gray-700" onblur="toast('Nome salvo ✓')">Guto</span>
+        <span class="text-brand-500 clk ml-auto" onclick="openConfig()">⚙ config</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="flex-1 overflow-y-auto">
+    <header class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-200 px-7 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="hamburger" onclick="document.getElementById('sidebar').classList.toggle('sidebar-open')" class="mr-1 p-2 rounded-lg hover:bg-gray-100 text-gray-600">☰</button>
+        <h1 id="pageTitle" class="text-lg font-bold text-gray-900">Operação</h1>
+        <span class="chip bg-green-100 text-green-700 hidden sm:inline-block">● 0 automações</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <input id="globalSearch" type="search" placeholder="🔍 Buscar lead, cliente…" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700" oninput="handleSearch(this.value)">
+        <button id="btnNovoLead" onclick="openForm('lead')" class="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-3.5 py-2 rounded-lg clk">+ Novo lead</button>
+        <button id="btnRegistrarVenda" onclick="openForm('venda')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-3.5 py-2 rounded-lg clk">+ Registrar venda</button>
+        <button id="btnImportarCSV" onclick="openForm('csv')" class="border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium px-3.5 py-2 rounded-lg clk">⬆ CSV</button>
+      </div>
+    </header>
+
+    <div class="p-7">
+
+      <!-- ═══ OPERAÇÃO ═══ -->
+      <section id="operacao" class="view active">
+        <div class="flex items-center justify-between mb-5">
+          <div class="inline-flex bg-gray-100 rounded-lg p-1 text-sm font-medium">
+            <button onclick="setLens('Ambos',this)" class="lens px-4 py-1.5 rounded-md bg-white shadow-sm text-gray-900">Ambos</button>
+            <button onclick="setLens('Só IA',this)" class="lens px-4 py-1.5 rounded-md text-gray-500">🤖 Só IA</button>
+            <button onclick="setLens('Só Pessoa',this)" class="lens px-4 py-1.5 rounded-md text-gray-500">👤 Só Pessoa</button>
+          </div>
+          <div class="flex gap-2 text-sm">
+            <select onchange="toast('Origem: '+this.value)" class="border border-gray-300 rounded-lg px-3 py-1.5 text-gray-600 clk"><option>Todas origens</option><option>Instagram</option><option>Google</option><option>WhatsApp</option><option>Meta Ads</option><option>📞 Voz IA</option><option>Manual</option></select>
+            <select onchange="toast('Período: '+this.value)" class="border border-gray-300 rounded-lg px-3 py-1.5 text-gray-600 clk"><option>Hoje</option><option>7 dias</option><option>Mês</option></select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+          <div onclick="drillStage(0)" class="kpi card p-4"><div class="text-xs text-gray-500">Leads hoje</div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">aguardando 1º lead</div></div>
+          <div onclick="drillField('1ª resposta')" class="kpi card p-4"><div class="text-xs text-gray-500">1ª resposta média</div><div class="text-2xl font-extrabold mt-1">—</div><div class="text-[11px] text-gray-400 mt-1">sem dados</div></div>
+          <div onclick="drillStage(2)" class="kpi card p-4"><div class="text-xs text-gray-500">Qualificados</div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">—</div></div>
+          <div onclick="drillStage(3)" class="kpi card p-4"><div class="text-xs text-gray-500">Calls agendadas</div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">degustação</div></div>
+          <div onclick="drillStage(5)" class="kpi card p-4"><div class="text-xs text-gray-500">Fechados</div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">R$ 0</div></div>
+          <div onclick="drillRisk()" class="kpi card p-4 bg-brand-50 border-brand-100"><div class="text-xs text-brand-700">Em risco</div><div id="kpiRisco" class="text-2xl font-extrabold mt-1 text-brand-700">0</div><div class="text-[11px] text-brand-600 mt-1">&gt;48h sem resposta</div></div>
+        </div>
+        <!-- VENDAS DO DIA / MÊS -->
+        <div class="mt-5 mb-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-gray-700">💰 Vendas</h3>
+            <div class="inline-flex bg-gray-100 rounded-lg p-0.5">
+              <button onclick="setMetricFilter('vendas','hoje',this)" class="mf-btn active">Hoje</button>
+              <button onclick="setMetricFilter('vendas','7d',this)" class="mf-btn text-gray-500">7 dias</button>
+              <button onclick="setMetricFilter('vendas','mes',this)" class="mf-btn text-gray-500">Mês</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="kpi card p-4 clk" onclick="drillStage(5)"><div class="text-xs text-gray-500">Vendas realizadas</div><div id="mVendasQtd" class="text-2xl font-extrabold mt-1 text-emerald-600">0</div><div class="text-[11px] text-gray-400 mt-1">fechamentos</div></div>
+            <div class="kpi card p-4 clk" onclick="drillStage(5)"><div class="text-xs text-gray-500">Receita do período</div><div id="mVendasDia" class="text-2xl font-extrabold mt-1 text-emerald-600">R$ 0</div><div id="mVendasDiaVar" class="text-[11px] text-gray-400 mt-1">—</div></div>
+            <div class="kpi card p-4 clk" onclick="drillStage(5)"><div class="text-xs text-gray-500">Receita do mês</div><div id="mVendasMes" class="text-2xl font-extrabold mt-1 text-brand-600">R$ 0</div><div class="text-[11px] text-gray-400 mt-1">meta: R$ 200k</div></div>
+            <div class="kpi card p-4"><div class="text-xs text-gray-500">Ticket médio</div><div id="mVendasTicket" class="text-2xl font-extrabold mt-1">R$ 0</div><div class="text-[11px] text-gray-400 mt-1">—</div></div>
+          </div>
+        </div>
+
+        <!-- ATENDIMENTOS DO DIA / MÊS -->
+        <div class="mt-1 mb-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-gray-700">📡 Atendimentos</h3>
+            <div class="inline-flex bg-gray-100 rounded-lg p-0.5">
+              <button onclick="setMetricFilter('atend','hoje',this)" class="mf-btn active">Hoje</button>
+              <button onclick="setMetricFilter('atend','7d',this)" class="mf-btn text-gray-500">7 dias</button>
+              <button onclick="setMetricFilter('atend','mes',this)" class="mf-btn text-gray-500">Mês</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="kpi card p-4 clk" onclick="listDrawer('Todos atendimentos hoje',leads)"><div class="text-xs text-gray-500">Total atendimentos</div><div id="mAtendTotal" class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">IA + humano</div></div>
+            <div class="kpi card p-4"><div class="text-xs text-gray-500">IA vs Humano</div><div id="mAtendIA" class="text-sm font-extrabold mt-1 text-brand-600">0 IA / 0 humano</div><div class="text-[11px] text-gray-400 mt-1">—</div></div>
+            <div class="kpi card p-4 clk" onclick="drillField('tmr')"><div class="text-xs text-gray-500">Tempo médio resposta</div><div id="mAtendTMR" class="text-2xl font-extrabold mt-1">—</div><div class="text-[11px] text-gray-400 mt-1">🤖 IA</div></div>
+            <div class="kpi card p-4"><div class="text-xs text-gray-500">Taxa de resolução</div><div id="mAtendRes" class="text-2xl font-extrabold mt-1 text-gray-400">—</div><div class="text-[11px] text-gray-400 mt-1">sem escalar</div></div>
+          </div>
+        </div>
+
+        <!-- BASE & VOLUME -->
+        <div class="mt-1 mb-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm text-gray-700">📊 Base & volume</h3>
+            <span class="text-[11px] text-gray-400">tempo real · 24h / 7d / 30d</span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="kpi card p-4 clk" onclick="show('inbox',document.querySelectorAll('.nav-item')[3])"><div class="flex items-center justify-between"><div class="text-xs text-gray-500">Em atendimento agora</div><span class="voice-live text-green-500">●</span></div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">conversas abertas</div></div>
+            <div class="kpi card p-4 clk" onclick="filterByTagAndGo('resolvido')"><div class="text-xs text-gray-500">Resolvidas (7d)</div><div class="text-2xl font-extrabold mt-1 text-green-600">0</div><div class="text-[11px] text-gray-400 mt-1">sem precisar de humano</div></div>
+            <div class="kpi card p-4 clk" onclick="filterByTagAndGo('agendado')"><div class="text-xs text-gray-500">Agendados (7d)</div><div class="text-2xl font-extrabold mt-1 text-purple-600">0</div><div class="text-[11px] text-gray-400 mt-1">calls + degustações</div></div>
+            <div class="kpi card p-4 clk" onclick="listDrawer('Base de contatos',leads)"><div class="text-xs text-gray-500">Total de contatos</div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">base completa</div></div>
+            <div class="kpi card p-4 clk" onclick="show('clientes',document.querySelectorAll('.nav-item')[2])"><div class="text-xs text-gray-500">Próximas compras (7d)</div><div class="text-2xl font-extrabold mt-1 text-amber-600">0</div><div class="text-[11px] text-gray-400 mt-1">eventos previstos</div></div>
+            <div class="kpi card p-4 clk" onclick="show('clientes',document.querySelectorAll('.nav-item')[2])"><div class="text-xs text-gray-500">Compras (30d)</div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">eventos realizados</div></div>
+            <div class="kpi card p-4"><div class="flex items-center justify-between"><div class="text-xs text-gray-500">Msgs recebidas (24h)</div><span class="text-gray-300">↓</span></div><div class="text-2xl font-extrabold mt-1 text-brand-600">0</div><div class="text-[11px] text-gray-400 mt-1">todos os canais</div></div>
+            <div class="kpi card p-4"><div class="flex items-center justify-between"><div class="text-xs text-gray-500">Msgs enviadas (24h)</div><span class="text-gray-300">↑</span></div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400 mt-1">—</div></div>
+          </div>
+        </div>
+
+        <!-- PRÓXIMAS COMPRAS / EVENTOS (14 dias) -->
+        <div class="card p-5 mb-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold">📅 Próximas compras / eventos (14 dias)</h3>
+            <span class="text-xs text-gray-400">confirme logística com antecedência</span>
+          </div>
+          <div id="proxComprasList"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="card p-5">
+            <div class="flex items-center justify-between mb-4"><h3 class="font-bold">🏆 Top 3 do dia</h3><span class="text-xs text-gray-400">clique p/ ver</span></div>
+            <div class="flex items-end justify-center gap-3 h-44">
+              <div class="text-center clk" onclick="drillPerson('Sofia IA')"><div class="w-16 h-16 rounded-full bg-gray-200 mx-auto flex items-center justify-center font-bold">🤖</div><div class="mt-1 text-xs font-semibold">Sofia IA</div><div class="text-[11px] text-gray-400">52 conv</div><div class="bg-gray-300 rounded-t-md mt-2 w-16 h-16 flex items-center justify-center font-bold text-gray-700">2º</div></div>
+              <div class="text-center clk" onclick="drillPerson('Guto')"><div class="w-16 h-16 rounded-full bg-yellow-100 mx-auto flex items-center justify-center font-bold ring-2 ring-yellow-400">👤</div><div class="mt-1 text-xs font-semibold">Guto</div><div class="text-[11px] text-gray-400">55 conv</div><div class="bg-yellow-400 rounded-t-md mt-2 w-16 h-24 flex items-center justify-center font-bold text-white">1º</div></div>
+              <div class="text-center clk" onclick="drillPerson('Bel')"><div class="w-16 h-16 rounded-full bg-orange-100 mx-auto flex items-center justify-center font-bold">👤</div><div class="mt-1 text-xs font-semibold">Bel</div><div class="text-[11px] text-gray-400">21 conv</div><div class="bg-orange-300 rounded-t-md mt-2 w-16 h-10 flex items-center justify-center font-bold text-white">3º</div></div>
+            </div>
+          </div>
+          <div class="card p-5"><h3 class="font-bold mb-3">Funil de vendas <span class="text-xs text-gray-400 font-normal">(clique)</span></h3><canvas id="funnelChart" height="190"></canvas></div>
+          <div class="card p-5"><h3 class="font-bold mb-3">IA vs Pessoa <span class="text-xs text-gray-400 font-normal">(clique)</span></h3><canvas id="iaChart" height="190"></canvas></div>
+        </div>
+        <div class="mt-6">
+          <h3 class="font-bold mb-3">⚠️ Gargalos</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div onclick="drillRisk()" class="card p-4 border-l-4 border-red-400 clk hover:bg-red-50"><div class="text-2xl font-extrabold text-red-500" id="gargRisco">2</div><div class="text-sm text-gray-600">leads em risco (>48h sem resposta)</div></div>
+            <div onclick="drillFollowVencido()" class="card p-4 border-l-4 border-amber-400 clk hover:bg-amber-50"><div class="text-2xl font-extrabold text-amber-500">8</div><div class="text-sm text-gray-600">follow-ups vencidos</div></div>
+            <div onclick="drillSemCall()" class="card p-4 border-l-4 border-indigo-400 clk hover:bg-indigo-50"><div class="text-2xl font-extrabold text-indigo-500">3</div><div class="text-sm text-gray-600">qualificados sem call agendada</div></div>
+          </div>
+        </div>
+
+        <!-- TENDÊNCIA 7 DIAS -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 card p-5">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold">📈 Tendência — leads e vendas (7 dias)</h3>
+              <span class="text-xs text-gray-400">última semana</span>
+            </div>
+            <canvas id="trendChart" height="110"></canvas>
+          </div>
+          <div class="card p-5">
+            <h3 class="font-bold mb-3">💰 Receita por etapa</h3>
+            <div class="space-y-3 text-sm">
+              <div><div class="flex justify-between text-xs mb-1"><span class="text-gray-500">Negociação</span><span class="font-semibold text-amber-600">R$ 265k</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-amber-400 rounded-full" style="width:100%"></div></div></div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="text-gray-500">Qualificados</span><span class="font-semibold text-brand-600">R$ 193k</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-brand-500 rounded-full" style="width:73%"></div></div></div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="text-gray-500">Em call</span><span class="font-semibold text-purple-600">R$ 127k</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-purple-400 rounded-full" style="width:48%"></div></div></div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="text-gray-500">Degustação</span><span class="font-semibold text-pink-600">R$ 52k</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-pink-400 rounded-full" style="width:20%"></div></div></div>
+              <div><div class="flex justify-between text-xs mb-1"><span class="text-gray-500">✅ Fechado (mês)</span><span class="font-semibold text-emerald-600">R$ 164k</span></div><div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:62%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ FUNIL ═══ -->
+      <section id="funil" class="view">
+        <div id="tagBar" class="flex items-center gap-2 mb-4 overflow-x-auto pb-1"></div>
+        <div class="flex gap-4 overflow-x-auto pb-2" id="kanban"></div>
+      </section>
+
+      <!-- ═══ CLIENTES ═══ -->
+      <section id="clientes" class="view">
+        <div class="flex items-center justify-between mb-5">
+          <div><h2 class="font-bold text-base">👥 Clientes ativos</h2><div class="text-xs text-gray-400 mt-0.5">Pós-venda — histórico, recompra e indicação</div></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+          <div class="card p-4 border-l-4 border-emerald-400"><div class="text-xs text-gray-500">Total clientes</div><div class="text-2xl font-extrabold text-emerald-600">0</div></div>
+          <div class="card p-4 border-l-4 border-brand-400"><div class="text-xs text-gray-500">Receita total</div><div class="text-2xl font-extrabold text-brand-600">R$ 0</div></div>
+          <div class="card p-4 border-l-4 border-amber-400"><div class="text-xs text-gray-500">Contato urgente</div><div class="text-2xl font-extrabold text-amber-500">0</div></div>
+        </div>
+        <div id="clientesList" class="space-y-3"></div>
+      </section>
+
+      <!-- ═══ INBOX ═══ -->
+      <section id="inbox" class="view">
+        <div class="grid grid-cols-12 gap-0 card overflow-hidden" style="height:calc(100vh - 180px)">
+          <div class="col-span-3 border-r border-gray-100 overflow-y-auto" id="inboxList"></div>
+          <div class="col-span-5 flex flex-col border-r border-gray-100">
+            <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+              <div class="flex items-center gap-2"><div class="w-9 h-9 rounded-full bg-pink-100 flex items-center justify-center">📷</div><div><div class="font-semibold text-sm" id="chatName">Marina Costa</div><div class="text-[11px] text-gray-400" id="chatSub">Instagram · casamento 180 convidados</div></div></div>
+              <div class="flex items-center gap-2 text-xs">
+                <label class="flex items-center gap-1.5 bg-green-50 text-green-700 px-2.5 py-1.5 rounded-lg font-medium clk">🤖 IA <input type="checkbox" checked class="accent-green-600"></label>
+                <button onclick="toast('Você assumiu a conversa')" class="border border-gray-300 px-2.5 py-1.5 rounded-lg clk">Assumir</button>
+              </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-5 space-y-3 bg-gray-50" id="chat"></div>
+            <div class="p-3 border-t border-gray-100">
+              <div class="flex gap-1.5 mb-2 overflow-x-auto pb-1" id="chatQuick"></div>
+              <div class="flex gap-2 items-center">
+                <button onclick="openMediaPicker()" title="Anexar mídia salva" class="text-lg text-gray-400 hover:text-brand-500 clk px-1">📎</button>
+                <input class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Resposta sugerida pela IA… (ou digite / para respostas rápidas)">
+                <button onclick="toast('Enviado')" class="bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-semibold clk">Enviar</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-4 overflow-y-auto bg-gray-50/50" id="aiPanel"></div>
+        </div>
+      </section>
+
+      <!-- ═══ FOLLOW-UP ═══ -->
+      <section id="followup" class="view">
+        <div class="card p-4 mb-4 bg-amber-50/60 border-l-4 border-amber-400 text-sm text-gray-600">
+          <b>📋 Regra de canal:</b> follow-up (cliente sumiu) sai por <b>e-mail</b> e <b>SMS</b> — nunca WhatsApp não-oficial (risco de bloqueio). Pra reabrir o WhatsApp fora das 24h, só com <b>template oficial Meta aprovado</b> (✅). Ligação humana é o último passo.
+          <button onclick="openTemplates()" class="ml-2 text-xs bg-cyan-50 text-cyan-700 px-2.5 py-1 rounded-lg clk font-semibold">✅ Gerenciar templates</button>
+        </div>
+        <div class="card p-5 mb-4 flex items-center gap-6 text-sm flex-wrap">
+          <span class="font-semibold">Cadência:</span>
+          <span class="flex items-center gap-1.5">✉️ E-mail T+4h</span><span class="text-gray-300">→</span>
+          <span class="flex items-center gap-1.5">📱 SMS T+12h</span><span class="text-gray-300">→</span>
+          <span class="flex items-center gap-1.5">✅ WhatsApp oficial D+1</span><span class="text-gray-300">→</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-orange-400"></span> 📞 Humano liga D+2</span>
+        </div>
+        <div id="followupList" class="space-y-4"></div>
+      </section>
+
+      <!-- ═══ AGENDA ═══ -->
+      <section id="agenda" class="view">
+        <div class="flex items-center justify-between mb-5">
+          <p class="text-sm text-gray-500">Seus agendamentos + os horários que a IA oferece ao cliente automaticamente.</p>
+          <div class="inline-flex bg-gray-100 rounded-lg p-0.5">
+            <button onclick="agendaTab('proximos',this)" class="ag-tab active">✅ Próximos</button>
+            <button onclick="agendaTab('horarios',this)" class="ag-tab text-gray-500">🕐 Horários</button>
+          </div>
+        </div>
+
+        <!-- ABA PRÓXIMOS -->
+        <div id="ag-proximos">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="card p-4"><div class="text-xs text-gray-500">Hoje</div><div class="text-2xl font-extrabold mt-1 text-brand-600">0</div></div>
+            <div class="card p-4"><div class="text-xs text-gray-500">Esta semana</div><div class="text-2xl font-extrabold mt-1">0</div></div>
+            <div class="card p-4"><div class="text-xs text-gray-500">Agendado pela IA</div><div class="text-2xl font-extrabold mt-1 text-purple-600">0</div></div>
+            <div class="card p-4"><div class="text-xs text-gray-500">Taxa comparecimento</div><div class="text-2xl font-extrabold mt-1 text-gray-400">—</div></div>
+          </div>
+          <div id="agendaList" class="max-w-3xl space-y-6"></div>
+        </div>
+
+        <!-- ABA HORÁRIOS -->
+        <div id="ag-horarios" class="hidden max-w-3xl">
+          <div class="card p-5 mb-4 flex items-center gap-3 bg-brand-50/40 border-l-4 border-brand-400">
+            <span class="text-2xl">🤖</span>
+            <div class="text-sm text-gray-600">Configure quando você atende. A IA só oferece e agenda dentro desses horários — nunca marca em horário fechado.</div>
+          </div>
+          <div class="card p-5 mb-4">
+            <div class="text-xs text-gray-500 mb-2">🔄 Sincronização de calendário</div>
+            <div class="flex flex-wrap gap-2">
+              <button onclick="toast('Conectar Google Calendar')" class="text-sm border border-gray-300 px-3 py-1.5 rounded-lg clk flex items-center gap-1.5">🔵 Google Calendar <span class="chip bg-gray-100 text-gray-500">conectar</span></button>
+              <button onclick="toast('Conectar Outlook')" class="text-sm border border-gray-300 px-3 py-1.5 rounded-lg clk flex items-center gap-1.5">🟦 Outlook <span class="chip bg-gray-100 text-gray-500">conectar</span></button>
+            </div>
+          </div>
+          <div class="card p-5 mb-4">
+            <label class="text-xs text-gray-500 flex items-center gap-1.5 mb-2">🕐 Duração de cada atendimento</label>
+            <div id="agDuration" class="flex flex-wrap gap-2"></div>
+          </div>
+          <div class="card p-5">
+            <div class="text-xs text-gray-500 mb-4">Dias e horários disponíveis</div>
+            <div id="agSlots" class="space-y-3"></div>
+            <div class="mt-6 flex justify-end"><button onclick="toast('Horários salvos ✓')" class="bg-brand-500 text-white px-5 py-2 rounded-lg text-sm font-semibold clk">💾 Salvar horários</button></div>
+          </div>
+          <p class="mt-4 text-xs text-gray-400 text-center">Dica: configure pausas (almoço) criando 2 intervalos no mesmo dia — ex: 09:00→12:00 e 14:00→18:00.</p>
+        </div>
+      </section>
+
+      <!-- ═══ VOZ IA ═══ -->
+      <section id="voz" class="view">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div class="card p-4 border-l-4 border-purple-400"><div class="text-xs text-gray-500">Calls hoje</div><div class="text-2xl font-extrabold text-purple-600">0</div><div class="text-[11px] text-gray-400">—</div></div>
+          <div class="card p-4 border-l-4 border-green-400"><div class="text-xs text-gray-500">Score médio</div><div class="text-2xl font-extrabold text-gray-400">—</div><div class="text-[11px] text-gray-400">sem calls</div></div>
+          <div class="card p-4 border-l-4 border-brand-400"><div class="text-xs text-gray-500">Em ligação agora</div><div class="text-2xl font-extrabold text-gray-400">0</div><div class="text-[11px] text-gray-400">—</div></div>
+        </div>
+
+        <!-- stack info -->
+        <div class="card p-5 mb-5">
+          <h3 class="font-bold mb-3">📞 Como funciona a Voz IA</h3>
+          <div class="flex items-center gap-2 overflow-x-auto pb-2">
+            <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 text-center min-w-[110px]"><div class="text-xl mb-1">📞</div><div class="font-bold text-xs text-purple-700">Recebe a ligação</div><div class="text-[10px] text-gray-400">número BR dedicado</div></div>
+            <div class="text-gray-300 text-xl">→</div>
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center min-w-[110px]"><div class="text-xl mb-1">🔀</div><div class="font-bold text-xs text-blue-700">Roteia a chamada</div><div class="text-[10px] text-gray-400">IA ou humano</div></div>
+            <div class="text-gray-300 text-xl">→</div>
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-center min-w-[110px]"><div class="text-xl mb-1">🎙️</div><div class="font-bold text-xs text-gray-700">Entende o áudio</div><div class="text-[10px] text-gray-400">transcrição em tempo real</div></div>
+            <div class="text-gray-300 text-xl">→</div>
+            <div class="bg-brand-50 border border-brand-200 rounded-xl p-3 text-center min-w-[110px]"><div class="text-xl mb-1">🤖</div><div class="font-bold text-xs text-brand-700">Sofia IA responde</div><div class="text-[10px] text-gray-400">qualifica e agenda</div></div>
+            <div class="text-gray-300 text-xl">→</div>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center min-w-[110px]"><div class="text-xl mb-1">🔊</div><div class="font-bold text-xs text-amber-700">Fala com naturalidade</div><div class="text-[10px] text-gray-400">voz gerada por IA</div></div>
+            <div class="text-gray-300 text-xl">→</div>
+            <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-center min-w-[110px]"><div class="text-xl mb-1">📊</div><div class="font-bold text-xs text-green-700">Analisa a call</div><div class="text-[10px] text-gray-400">score automático</div></div>
+          </div>
+        </div>
+
+        <!-- calls recentes -->
+        <h3 class="font-bold mb-3">📋 Calls recentes <span class="text-xs text-gray-400 font-normal">(clique p/ score completo)</span></h3>
+        <div id="vozCallList" class="space-y-3"></div>
+
+        <!-- score de call — SniperSell style -->
+        <div class="card p-5 mt-5" id="scoreDemo">
+          <div class="flex items-center justify-between mb-4">
+            <div><h3 class="font-bold">📊 Score da Call</h3><div class="text-xs text-gray-400">exemplo — aparece após a 1ª call gravada</div></div>
+            <div id="scoreRing"></div>
+          </div>
+          <div id="scoreBars"></div>
+          <div class="mt-4 bg-gray-50 rounded-xl p-3 text-sm"><div class="font-semibold text-gray-700 mb-1">💡 Insights da IA</div><div class="text-gray-500 text-xs space-y-1"><div>✅ Abertura forte com storytelling dos pratos</div><div>⚠️ Objeção de preço não rebatida com ROI emocional</div><div>✅ Fechamento tentativo feito (perguntou data 3x)</div><div>🎯 Oportunidade: mencionar sustentabilidade + exclusividade</div></div></div>
+          <div class="mt-3 flex gap-2"><button onclick="toast('Transcrição baixada')" class="text-xs border border-gray-300 px-3 py-1.5 rounded-lg clk">📄 Transcrição</button><button onclick="toast('Enviando feedback...')" class="text-xs border border-gray-300 px-3 py-1.5 rounded-lg clk">📤 Feedback p/ Guto</button><button onclick="toast('Gravação abrindo...')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk">▶ Ouvir call</button></div>
+        </div>
+      </section>
+
+      <!-- ═══ CAMPANHAS ═══ -->
+      <section id="campanhas" class="view">
+        <div class="flex items-center justify-between mb-5">
+          <div><h2 class="font-bold text-base">📣 Campanhas</h2><div class="text-xs text-gray-400 mt-0.5">E-mail marketing + WhatsApp + SMS</div></div>
+          <button onclick="openCampanha()" class="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-3.5 py-2 rounded-lg clk">+ Nova campanha</button>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="card p-4"><div class="text-xs text-gray-500">Enviados (mês)</div><div class="text-2xl font-extrabold mt-1">0</div><div class="text-[11px] text-gray-400">e-mail + WhatsApp + SMS</div></div>
+          <div class="card p-4"><div class="text-xs text-gray-500">Taxa de abertura</div><div class="text-2xl font-extrabold mt-1 text-gray-400">—</div><div class="text-[11px] text-gray-400">média dos canais</div></div>
+          <div class="card p-4"><div class="text-xs text-gray-500">Cliques</div><div class="text-2xl font-extrabold mt-1 text-gray-400">—</div><div class="text-[11px] text-gray-400">CTR médio</div></div>
+          <div class="card p-4"><div class="text-xs text-gray-500">Leads gerados</div><div class="text-2xl font-extrabold mt-1 text-emerald-600">0</div><div class="text-[11px] text-gray-400">via campanha este mês</div></div>
+        </div>
+
+        <!-- infra badges -->
+        <div class="card p-4 mb-5 flex items-center gap-4 flex-wrap">
+          <span class="text-sm font-semibold text-gray-600">Stack própria:</span>
+          <span class="chip bg-blue-100 text-blue-700">📧 E-mail</span>
+          <span class="chip bg-green-100 text-green-700">🟢 WhatsApp</span>
+          <span class="chip bg-yellow-100 text-yellow-700">📱 SMS</span>
+          <span class="chip bg-purple-100 text-purple-700">🎙️ Voz IA (fase 3)</span>
+          <span class="text-xs text-gray-400 ml-auto">zero dependência de plataforma paga de terceiro</span>
+        </div>
+
+        <div id="campanhaList" class="space-y-3"></div>
+
+        <!-- template gallery -->
+        <h3 class="font-bold mt-6 mb-3">🎨 Templates prontos</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="campTemplates"></div>
+      </section>
+
+      <!-- ═══ PENDÊNCIAS ═══ -->
+      <section id="pendencias" class="view">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+          <div class="card p-4 border-l-4 border-red-400"><div class="text-xs text-gray-500">Urgente (hoje)</div><div class="text-2xl font-extrabold text-red-500">0</div></div>
+          <div class="card p-4 border-l-4 border-amber-400"><div class="text-xs text-gray-500">Esta semana</div><div class="text-2xl font-extrabold text-amber-500">0</div></div>
+          <div class="card p-4 border-l-4 border-gray-300"><div class="text-xs text-gray-500">Aguardando cliente</div><div class="text-2xl font-extrabold text-gray-500">0</div></div>
+        </div>
+        <div class="card divide-y divide-gray-100" id="pendList"></div>
+      </section>
+
+      <!-- ═══ MONITOR IA ═══ -->
+      <section id="monitor" class="view">
+
+        <!-- STATUS CANAIS -->
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-sm text-gray-700">📡 Canais</h3><button onclick="openCanais()" class="text-xs bg-brand-50 text-brand-600 px-3 py-1.5 rounded-lg clk font-semibold">⚙ Gerenciar conexões</button></div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          <div onclick="openCanais()" class="card p-3 flex items-center gap-2 clk hover:shadow-md"><span class="text-xl">✅</span><div><div class="text-xs text-gray-500">WhatsApp Oficial</div><div class="text-xs font-bold text-gray-400">Não conectado</div></div></div>
+          <div onclick="openCanais()" class="card p-3 flex items-center gap-2 clk hover:shadow-md"><span class="text-xl">🟢</span><div><div class="text-xs text-gray-500">WhatsApp</div><div class="text-xs font-bold text-gray-400">Não conectado</div></div></div>
+          <div onclick="openCanais()" class="card p-3 flex items-center gap-2 clk hover:shadow-md"><span class="text-xl">📷</span><div><div class="text-xs text-gray-500">Instagram</div><div class="text-xs font-bold text-gray-400">Não conectado</div></div></div>
+          <div class="card p-3 flex items-center gap-2"><span class="text-xl">📣</span><div><div class="text-xs text-gray-500">Meta Ads</div><div class="text-xs font-bold text-gray-400">Não conectado</div></div></div>
+          <div class="card p-3 flex items-center gap-2"><span class="text-xl">✉️</span><div><div class="text-xs text-gray-500">E-mail</div><div class="text-xs font-bold text-gray-400">Não configurado</div></div></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <!-- KPIs SDR IA hoje -->
+          <div class="card p-5">
+            <div class="flex items-center gap-2 mb-4"><span class="text-lg">🤖</span><h3 class="font-bold">Sofia IA — hoje</h3><span class="ml-auto chip bg-gray-100 text-gray-500">aguardando</span></div>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center py-2 border-b border-gray-50"><span class="text-sm text-gray-600">Leads atendidos</span><span class="font-extrabold text-brand-600">0</span></div>
+              <div class="flex justify-between items-center py-2 border-b border-gray-50"><span class="text-sm text-gray-600">1ª resposta média</span><span class="font-extrabold text-gray-400">—</span></div>
+              <div class="flex justify-between items-center py-2 border-b border-gray-50"><span class="text-sm text-gray-600">Qualificados pela IA</span><span class="font-extrabold">0</span></div>
+              <div class="flex justify-between items-center py-2 border-b border-gray-50"><span class="text-sm text-gray-600">Orçamentos enviados</span><span class="font-extrabold">0</span></div>
+              <div class="flex justify-between items-center py-2 border-b border-gray-50"><span class="text-sm text-gray-600">Calls agendadas pela IA</span><span class="font-extrabold text-purple-600">0</span></div>
+              <div class="flex justify-between items-center py-2"><span class="text-sm text-gray-600">Handoffs para humano</span><span class="font-extrabold text-amber-600">0</span></div>
+            </div>
+          </div>
+
+          <!-- Automações ativas -->
+          <div class="card p-5">
+            <div class="flex items-center gap-2 mb-4"><span class="text-lg">⚡</span><h3 class="font-bold">Automações ativas</h3></div>
+            <div id="autoList" class="space-y-3"></div>
+          </div>
+
+          <!-- Flow de um lead em tempo real -->
+          <div class="card p-5">
+            <div class="flex items-center gap-2 mb-4"><span class="text-lg">🔄</span><h3 class="font-bold">Fluxo em execução agora</h3></div>
+            <div class="text-sm text-gray-400 text-center py-8">Nenhum lead em fluxo agora.<br>Aparece aqui quando um lead entra.</div>
+          </div>
+        </div>
+
+        <!-- LOG DE ATIVIDADE DA IA -->
+        <div class="card p-5 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2"><span class="text-lg">📋</span><h3 class="font-bold">Log de atividade — Sofia IA</h3></div>
+            <div class="flex gap-2">
+              <select onchange="toast('Filtro: '+this.value)" class="border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-600"><option>Todas ações</option><option>Só respostas</option><option>Só qualificações</option><option>Só orçamentos</option><option>Só handoffs</option><option>Erros</option></select>
+              <button onclick="toast('Log exportado')" class="text-xs border border-gray-300 px-2.5 py-1.5 rounded-lg clk">⬇ Exportar</button>
+            </div>
+          </div>
+          <div id="iaLog" class="space-y-1 max-h-72 overflow-y-auto"></div>
+        </div>
+
+        <!-- REGRAS DO FLUXO (editável) -->
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2"><span class="text-lg">🛠️</span><h3 class="font-bold">Regras do fluxo</h3></div>
+            <button onclick="toast('Nova regra criada')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk font-semibold">+ Nova regra</button>
+          </div>
+          <div id="flowRules" class="space-y-2"></div>
+        </div>
+
+      </section>
+
+      <!-- ═══ CÉREBRO IA ═══ -->
+      <section id="cerebro" class="view">
+
+        <!-- sub-nav -->
+        <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
+          <button onclick="cerebroTab('atend',this)" class="cb-tab active px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap">💬 Atendimento</button>
+          <button onclick="cerebroTab('produtos',this)" class="cb-tab px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-gray-500">📦 Pacotes</button>
+          <button onclick="cerebroTab('classif',this)" class="cb-tab px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-gray-500">🎯 Classificação</button>
+          <button onclick="cerebroTab('objecoes',this)" class="cb-tab px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-gray-500">🛡️ Objeções</button>
+          <button onclick="cerebroTab('biblioteca',this)" class="cb-tab px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-gray-500">📎 Biblioteca</button>
+          <button onclick="cerebroTab('fluxos',this)" class="cb-tab px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-gray-500">🔧 Fluxos</button>
+          <button onclick="cerebroTab('aprendizado',this)" class="cb-tab px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-gray-500">📈 O que funciona</button>
+        </div>
+
+        <!-- TAB: ATENDIMENTO (prompt) -->
+        <div id="cb-atend" class="cb-pane">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 card p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div><h3 class="font-bold">💬 Como a Sofia IA atende</h3><p class="text-xs text-gray-400 mt-0.5">Escreva em português normal. É isso que a IA segue em toda conversa.</p></div>
+                <button onclick="toast('Atendimento salvo e aplicado ✓')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk font-semibold">Salvar</button>
+              </div>
+              <textarea id="promptArea" rows="14" class="w-full text-sm text-gray-700 leading-relaxed border border-gray-200 rounded-xl p-4 outline-none focus:border-brand-400 resize-y" onblur="toast('Rascunho salvo')"></textarea>
+            </div>
+            <div class="space-y-4">
+              <div class="card p-5">
+                <h4 class="font-bold text-sm mb-2">🎭 Personalidade</h4>
+                <div class="space-y-2 text-sm">
+                  <label class="flex items-center justify-between py-1"><span class="text-gray-600">Tom</span><select class="border border-gray-200 rounded-lg px-2 py-1 text-xs" onchange="toast('Tom: '+this.value)"><option>Caloroso e próximo</option><option>Formal e profissional</option><option>Descontraído</option><option>Direto ao ponto</option></select></label>
+                  <label class="flex items-center justify-between py-1"><span class="text-gray-600">Emojis</span><select class="border border-gray-200 rounded-lg px-2 py-1 text-xs" onchange="toast('Emojis: '+this.value)"><option>Moderado</option><option>Bastante</option><option>Nenhum</option></select></label>
+                  <label class="flex items-center justify-between py-1"><span class="text-gray-600">Tamanho das respostas</span><select class="border border-gray-200 rounded-lg px-2 py-1 text-xs" onchange="toast('OK')"><option>Curtas</option><option>Médias</option><option>Detalhadas</option></select></label>
+                </div>
+              </div>
+              <div class="card p-5">
+                <h4 class="font-bold text-sm mb-2">📌 Variáveis disponíveis</h4>
+                <p class="text-[11px] text-gray-400 mb-2">Use no texto — a IA preenche sozinha.</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="chip bg-gray-100 text-gray-600">{nome_cliente}</span>
+                  <span class="chip bg-gray-100 text-gray-600">{empresa}</span>
+                  <span class="chip bg-gray-100 text-gray-600">{pacotes}</span>
+                  <span class="chip bg-gray-100 text-gray-600">{data_evento}</span>
+                  <span class="chip bg-gray-100 text-gray-600">{nº_convidados}</span>
+                  <span class="chip bg-gray-100 text-gray-600">{nome_vendedor}</span>
+                </div>
+              </div>
+              <div class="card p-5 border-l-4 border-brand-400">
+                <h4 class="font-bold text-sm mb-1">🚦 Quando passar pro humano</h4>
+                <div id="handoffRules" class="space-y-1.5 mt-2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: PACOTES (produtos) -->
+        <div id="cb-produtos" class="cb-pane hidden">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm text-gray-500">Cadastre o que você vende. A IA usa isso para montar os orçamentos automaticamente.</p>
+            <button onclick="toast('Novo pacote — preencha os campos')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk font-semibold">+ Novo pacote</button>
+          </div>
+          <div id="produtosList" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- TAB: CLASSIFICAÇÃO -->
+        <div id="cb-classif" class="cb-pane hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card p-5">
+              <h3 class="font-bold mb-1">🎯 O que torna um lead "quente"</h3>
+              <p class="text-xs text-gray-400 mb-4">A IA soma pontos conforme o lead responde. Ajuste o peso de cada critério.</p>
+              <div id="scoreRules" class="space-y-3"></div>
+              <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500">Faixas: <span class="chip bg-red-100 text-red-600">0–40 frio</span> <span class="chip bg-amber-100 text-amber-700">41–70 morno</span> <span class="chip bg-green-100 text-green-700">71–100 quente</span></div>
+            </div>
+            <div class="card p-5">
+              <h3 class="font-bold mb-1">📊 Distribuição atual dos leads</h3>
+              <p class="text-xs text-gray-400 mb-4">Onde estão classificados agora.</p>
+              <canvas id="classifChart" height="160"></canvas>
+              <div id="classifLegend" class="mt-4 space-y-2 text-sm"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: OBJEÇÕES -->
+        <div id="cb-objecoes" class="cb-pane hidden">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm text-gray-500">As dúvidas que mais aparecem e a melhor resposta para cada. A IA usa, e você refina.</p>
+            <button onclick="toast('Nova objeção — escreva a dúvida e a resposta')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk font-semibold">+ Nova objeção</button>
+          </div>
+          <div id="objecoesList" class="space-y-3"></div>
+        </div>
+
+        <!-- TAB: BIBLIOTECA DE MÍDIA -->
+        <div id="cb-biblioteca" class="cb-pane hidden">
+          <div class="card p-4 mb-5 bg-brand-50/40 border-l-4 border-brand-400">
+            <div class="text-sm text-gray-600">📎 Salve fotos, vídeos e áudios prontos. A IA envia automaticamente no momento certo (ex: vídeo do espaço quando o lead qualifica) e o vendedor usa com 1 clique no chat.</div>
+          </div>
+
+          <!-- filtros de tipo -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="inline-flex bg-gray-100 rounded-lg p-0.5">
+              <button onclick="filterMedia('todos',this)" class="mf-btn active">Todos</button>
+              <button onclick="filterMedia('imagem',this)" class="mf-btn text-gray-500">🖼️ Imagens</button>
+              <button onclick="filterMedia('video',this)" class="mf-btn text-gray-500">🎬 Vídeos</button>
+              <button onclick="filterMedia('audio',this)" class="mf-btn text-gray-500">🎙️ Áudios</button>
+            </div>
+            <button onclick="toast('Selecione arquivos do computador para enviar')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk font-semibold">⬆ Enviar mídia</button>
+          </div>
+          <div id="mediaGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8"></div>
+
+          <!-- respostas rápidas (texto + mídia) -->
+          <div class="flex items-center justify-between mb-3">
+            <div><h3 class="font-bold">⚡ Respostas rápidas</h3><p class="text-xs text-gray-400 mt-0.5">Mensagens prontas (com ou sem mídia) que a IA e o vendedor disparam num clique.</p></div>
+            <button onclick="toast('Nova resposta rápida')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk font-semibold">+ Nova resposta</button>
+          </div>
+          <div id="quickReplies" class="space-y-2"></div>
+        </div>
+
+        <!-- TAB: FLUXOS (construtor visual) -->
+        <div id="cb-fluxos" class="cb-pane hidden">
+          <div class="card p-4 mb-4 bg-cyan-50/60 border-l-4 border-cyan-400 text-sm text-gray-600">
+            <b>📡 Política de canais (automática nos fluxos):</b>
+            <span class="inline-flex flex-wrap gap-3 mt-1">
+              <span>✅ <b>Dentro de 24h</b> (cliente falou): WhatsApp livre</span>
+              <span>·</span>
+              <span>✉️📱 <b>Proativo</b> (cliente sumiu): só e-mail / SMS</span>
+              <span>·</span>
+              <span>🟢 <b>Reabrir WhatsApp</b> fora de 24h: só template oficial Meta aprovado</span>
+            </span>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- lista de fluxos -->
+            <div class="card p-4">
+              <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-sm">Meus fluxos</h3><button onclick="novoFluxo()" class="text-xs bg-brand-500 text-white px-2.5 py-1 rounded-lg clk font-semibold">+ Novo</button></div>
+              <div id="fluxoList" class="space-y-1.5"></div>
+            </div>
+            <!-- construtor -->
+            <div class="lg:col-span-3">
+              <div class="card p-4 mb-4 flex items-center gap-3 flex-wrap">
+                <div class="flex-1 min-w-0"><div class="text-[11px] text-gray-400">NOME DO FLUXO</div><div id="fluxoNome" class="font-bold" contenteditable="true" onblur="salvarFluxoNome(this)">—</div></div>
+                <div><div class="text-[11px] text-gray-400">QUANDO INICIA</div><select id="fluxoTrigger" onchange="toast('Gatilho atualizado')" class="text-sm border border-gray-200 rounded-lg px-2 py-1"><option value="new_contact">Novo contato (1ª msg)</option><option value="keyword">Palavra-chave</option><option value="qualified">Lead qualificado</option><option value="inactive">Lead esfriando (sem resposta)</option><option value="manual">Manual</option></select></div>
+                <label class="flex items-center gap-1.5 text-sm"><input type="checkbox" checked class="accent-brand-500"> ativo</label>
+                <button onclick="toast('Fluxo salvo ✓')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk font-semibold">💾 Salvar</button>
+              </div>
+              <div id="fluxoCanvas" class="space-y-0"></div>
+              <div class="flex flex-wrap gap-2 mt-3" id="fluxoAddBtns"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: O QUE FUNCIONA (perdas + vitórias + aprendizado) -->
+        <div id="cb-aprendizado" class="cb-pane hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="card p-5">
+              <div class="flex items-center gap-2 mb-1"><span class="text-lg">❌</span><h3 class="font-bold">Por que NÃO fecharam</h3></div>
+              <p class="text-xs text-gray-400 mb-4">Motivos das perdas nos últimos 30 dias. Ataque o topo da lista.</p>
+              <div id="perdasList" class="space-y-3"></div>
+            </div>
+            <div class="card p-5">
+              <div class="flex items-center gap-2 mb-1"><span class="text-lg">✅</span><h3 class="font-bold">O que fez fechar</h3></div>
+              <p class="text-xs text-gray-400 mb-4">Padrões presentes nas vendas ganhas. Repita o que funciona.</p>
+              <div id="vitoriasList" class="space-y-3"></div>
+            </div>
+          </div>
+          <div class="card p-5 border-l-4 border-brand-400">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-2"><span class="text-lg">💡</span><h3 class="font-bold">A IA aprendeu isso essa semana</h3></div>
+              <span class="chip bg-brand-50 text-brand-600">atualiza sozinho</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">Sugestões automáticas a partir do que está dando certo e errado. Aprove para a IA aplicar.</p>
+            <div id="insightsList" class="space-y-3"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ═══ PROCESSO ═══ -->
+      <section id="processo" class="view">
+        <div class="card p-6 mb-5">
+          <h3 class="font-bold text-lg mb-1">Como funciona o processo de venda</h3>
+          <p class="text-sm text-gray-500 mb-5">Do lead à venda fechada — quem faz o quê e quando passa a bola.</p>
+          <div class="flex items-stretch gap-2 overflow-x-auto pb-2" id="processFlow"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="card p-5"><h4 class="font-bold mb-3">🤖 O que a IA faz sozinha</h4><ul class="text-sm text-gray-600 space-y-2 list-disc pl-5">
+            <li>Responde em &lt;1min em qualquer canal (IG, Google, WhatsApp, Ads, 📞 Voz)</li>
+            <li>Qualifica: data do evento, nº de convidados, faixa de orçamento</li>
+            <li>Envia 3 orçamentos automáticos por faixa de convidados</li>
+            <li>Agenda a call do Guto na agenda dele</li>
+            <li>Dispara follow-up nas primeiras 24h (msg→e-mail→ligação)</li>
+            <li>Envia campanhas de e-mail e WhatsApp</li>
+            <li>Score automático de cada call após encerrar</li>
+          </ul></div>
+          <div class="card p-5"><h4 class="font-bold mb-3">👤 Quando passa pro Guto</h4><ul class="text-sm text-gray-600 space-y-2 list-disc pl-5">
+            <li><b>Gatilho de handoff:</b> lead qualificado + call agendada</li>
+            <li>Guto foca 70–80% só em fechar, não em atender</li>
+            <li>Na call: storytelling dos pratos + sustentabilidade</li>
+            <li>Na degustação: experiência sensorial ao vivo</li>
+            <li><b>Após 24h sem resposta da IA:</b> tarefa do humano</li>
+            <li>Guto recebe score da call e feedback da IA por WhatsApp</li>
+          </ul></div>
+        </div>
+        <div class="card p-5 mt-5"><h4 class="font-bold mb-3">Critérios de passagem entre etapas</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm" id="processRules"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══ CONFIG MODAL ═══ -->
+<div id="configModal" onclick="if(event.target===this)closeConfig()">
+  <div id="configModalBox">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-extrabold text-lg">⚙️ Configurações do CRM</h2>
+      <button onclick="closeConfig()" class="text-gray-400 hover:text-gray-700 text-xl">✕</button>
+    </div>
+
+    <div class="space-y-5 text-sm">
+      <!-- EMPRESA -->
+      <div>
+        <div class="font-bold text-gray-700 mb-3 flex items-center gap-2">🏢 Empresa / White-label</div>
+        <div class="field-wrap"><div class="field-label">Nome do cliente</div><div contenteditable="true" class="text-sm font-semibold" id="cfgClientName" onblur="syncClientName(this)">Clube Carvão</div></div>
+        <div class="field-wrap"><div class="field-label">Segmento / tipo de negócio</div><div contenteditable="true" class="text-sm" id="cfgSegmento">Buffet & Eventos</div></div>
+        <div class="field-wrap"><div class="field-label">Meta de receita mensal (R$)</div><div contenteditable="true" class="text-sm font-bold text-emerald-600" id="cfgMeta" onblur="syncMeta(this)">R$ 200.000</div></div>
+        <div class="field-wrap"><div class="field-label">Ticket médio esperado (R$)</div><div contenteditable="true" class="text-sm" id="cfgTicket">R$ 55.000</div></div>
+      </div>
+
+      <!-- EQUIPE -->
+      <div>
+        <div class="font-bold text-gray-700 mb-3 flex items-center gap-2">👥 Equipe</div>
+        <div id="cfgTeam" class="space-y-2">
+          <div class="field-wrap flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center font-bold text-brand-600">🤖</div>
+            <div class="flex-1"><div class="field-label">SDR IA</div><div contenteditable="true" class="text-sm font-semibold">Sofia IA</div></div>
+            <span class="chip bg-green-100 text-green-700">Ativo</span>
+          </div>
+          <div class="field-wrap flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center font-bold text-amber-600">G</div>
+            <div class="flex-1"><div class="field-label">Closer principal</div><div contenteditable="true" class="text-sm font-semibold" id="cfgCloser1" onblur="syncUserName(this)">Guto</div></div>
+            <span class="chip bg-green-100 text-green-700">Ativo</span>
+          </div>
+          <div class="field-wrap flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center font-bold text-orange-500">B</div>
+            <div class="flex-1"><div class="field-label">Closer 2</div><div contenteditable="true" class="text-sm font-semibold">Bel</div></div>
+            <span class="chip bg-gray-100 text-gray-500">Suporte</span>
+          </div>
+        </div>
+        <button onclick="toast('Novo agente adicionado')" class="mt-2 text-xs text-brand-500 font-semibold clk">+ Adicionar agente</button>
+      </div>
+
+      <!-- FUNIL / ETAPAS -->
+      <div>
+        <div class="font-bold text-gray-700 mb-3">🗂️ Etapas do funil</div>
+        <div id="cfgStages" class="space-y-2"></div>
+        <button onclick="toast('Nova etapa criada')" class="mt-2 text-xs text-brand-500 font-semibold clk">+ Adicionar etapa</button>
+      </div>
+
+      <!-- IA / AUTOMAÇÃO -->
+      <div>
+        <div class="font-bold text-gray-700 mb-3">🤖 Configurações da IA</div>
+        <div class="field-wrap"><div class="field-label">Nome da IA SDR</div><div contenteditable="true" class="text-sm font-semibold">Sofia IA</div></div>
+        <div class="field-wrap"><div class="field-label">Tom de voz da IA</div><select class="w-full text-sm bg-transparent outline-none"><option>Amigável e profissional</option><option>Formal / corporativo</option><option>Descontraído / casual</option><option>Urgente / vendas</option></select></div>
+        <div class="field-wrap"><div class="field-label">Handoff automático para humano após (horas sem resposta)</div><div contenteditable="true" class="text-sm font-semibold">24</div></div>
+        <div class="field-wrap"><div class="field-label">1ª mensagem da IA</div><textarea id="cfgIAMsg" class="w-full text-sm bg-transparent outline-none resize-none" rows="3">Oi! Sou a Sofia, assistente do Clube Carvão 💛 Adorei seu contato! Para te enviar um orçamento personalizado, me conta: qual a data do seu evento?</textarea></div>
+      </div>
+
+      <!-- CANAIS -->
+      <div>
+        <div class="flex items-center justify-between mb-3"><div class="font-bold text-gray-700">📡 Canais conectados</div><button onclick="closeDrawer();document.getElementById('configModal').classList.remove('open');openCanais()" class="text-xs bg-brand-50 text-brand-600 px-3 py-1.5 rounded-lg clk font-semibold">⚙ Gerenciar conexões</button></div>
+        <div class="space-y-2">
+          <div class="field-wrap flex items-center gap-3"><span class="text-lg">🟢</span><span class="flex-1 font-medium text-sm">2 WhatsApp não-oficial <span class="text-gray-400 font-normal">(Atendimento + Captação)</span></span><span class="chip bg-green-100 text-green-700">1 ativo</span></div>
+          <div class="field-wrap flex items-center gap-3"><span class="text-lg">✅</span><span class="flex-1 font-medium text-sm">WhatsApp Oficial <span class="text-gray-400 font-normal">(Meta · selo verde)</span></span><span class="chip bg-green-100 text-green-700">Conectado</span></div>
+          <div class="field-wrap flex items-center gap-3"><span class="text-lg">📷</span><span class="flex-1 font-medium text-sm">Instagram DM</span><span class="chip bg-green-100 text-green-700">Conectado</span></div>
+          <div class="field-wrap flex items-center gap-3"><span class="text-lg">✉️</span><span class="flex-1 font-medium text-sm">E-mail</span><span class="chip bg-green-100 text-green-700">No ar</span></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICAÇÕES -->
+      <div>
+        <div class="font-bold text-gray-700 mb-3">🔔 Alertas para equipe</div>
+        <div class="space-y-2">
+          <label class="field-wrap flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-brand-500 w-4 h-4"><span class="flex-1 text-sm">Novo lead qualificado → WhatsApp do Guto</span></label>
+          <label class="field-wrap flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-brand-500 w-4 h-4"><span class="flex-1 text-sm">Lead sem resposta 24h → notificação no app</span></label>
+          <label class="field-wrap flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-brand-500 w-4 h-4"><span class="flex-1 text-sm">Venda fechada → alerta de equipe</span></label>
+          <label class="field-wrap flex items-center gap-3 cursor-pointer"><input type="checkbox" class="accent-brand-500 w-4 h-4"><span class="flex-1 text-sm">Relatório semanal por e-mail</span></label>
+        </div>
+      </div>
+
+      <button onclick="saveConfig()" class="w-full bg-brand-500 text-white py-3 rounded-xl font-bold text-sm clk mt-2">💾 Salvar configurações</button>
+      <button onclick="resetState()" class="w-full border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 py-2 rounded-xl text-xs clk mt-2">↺ Limpar dados e voltar ao exemplo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DRAWER ═══ -->
+<div id="overlay" onclick="closeDrawer()" class="fixed inset-0 bg-black/30 z-40"></div>
+<aside id="drawer" class="fixed top-0 right-0 h-full w-[460px] bg-white z-50 shadow-2xl flex flex-col">
+  <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+    <h3 id="drawerTitle" class="font-bold"></h3>
+    <button onclick="closeDrawer()" class="text-gray-400 hover:text-gray-700 text-xl clk">✕</button>
+  </div>
+  <div id="drawerBody" class="flex-1 overflow-y-auto p-5"></div>
+</aside>
+
+<div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white text-sm px-4 py-2.5 rounded-lg shadow-lg opacity-0 transition-opacity pointer-events-none z-[60]"></div>
+
+<script>
+/* ═══ NAV ═══ */
+const titles={operacao:'Operação',funil:'Funil de vendas',clientes:'Clientes',inbox:'Inbox unificado',followup:'Follow-up',agenda:'Agenda',voz:'Voz IA',campanhas:'Campanhas',pendencias:'Pendências',processo:'Processo de venda',monitor:'Monitor IA',cerebro:'Cérebro IA — como a IA atende e aprende'};
+// Sections where lead-action buttons make sense
+const btnsVisible={operacao:true,funil:true,clientes:false,inbox:false,followup:false,agenda:false,voz:false,campanhas:false,pendencias:false,processo:false,monitor:false,cerebro:false};
+function show(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.getElementById('pageTitle').textContent=titles[id]||id;
+  const show=btnsVisible[id]||false;
+  ['btnNovoLead','btnRegistrarVenda','btnImportarCSV'].forEach(b=>{const el2=document.getElementById(b);if(el2)el2.style.display=show?'':'none';});
+  // close mobile sidebar on nav
+  document.getElementById('sidebar')?.classList.remove('sidebar-open');
+}
+function setLens(l,el){document.querySelectorAll('.lens').forEach(b=>{b.classList.remove('bg-white','shadow-sm','text-gray-900');b.classList.add('text-gray-500')});el.classList.add('bg-white','shadow-sm','text-gray-900');el.classList.remove('text-gray-500');toast('Filtro: '+l);}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1700);}
+function openDrawer(title,html){document.getElementById('drawerTitle').textContent=title;document.getElementById('drawerBody').innerHTML=html;document.getElementById('drawer').classList.add('open');document.getElementById('overlay').classList.add('open');}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+
+/* ═══ DADOS MESTRES ═══ */
+const src={
+  instagram:'📷', google:'🔍',
+  whatsapp:'🟢', whatsapp_oficial:'✅',
+  meta_ads:'📣', manual:'✍️', voz:'📞', tiktok:'🎵', email:'📧'
+};
+const srcNome={
+  instagram:'Instagram',     google:'Google',
+  whatsapp:'WhatsApp',       whatsapp_oficial:'WhatsApp Oficial',
+  meta_ads:'Meta Ads',       manual:'Indicação',
+  voz:'Voz IA',              tiktok:'TikTok',   email:'E-mail'
+};
+const srcCor={
+  instagram:'bg-pink-100 text-pink-700',
+  google:'bg-blue-100 text-blue-700',
+  whatsapp:'bg-green-100 text-green-700',
+  whatsapp_oficial:'bg-emerald-100 text-emerald-800',
+  meta_ads:'bg-indigo-100 text-indigo-700',
+  manual:'bg-gray-100 text-gray-600',
+  voz:'bg-purple-100 text-purple-700',
+  tiktok:'bg-red-100 text-red-700',
+  email:'bg-sky-100 text-sky-700',
+};
+function byBadge(s){return`<span class="chip ${srcCor[s]||'bg-gray-100 text-gray-500'}">${src[s]} ${srcNome[s]||s}</span>`;}
+const stages=[{n:'Entrada',c:'#94a3b8'},{n:'SDR IA',c:'#3b6ef5'},{n:'Qualificado',c:'#8b5cf6'},{n:'Call',c:'#f59e0b'},{n:'Degustação',c:'#ec4899'},{n:'Fechado',c:'#10b981'}];
+
+function nextContactRec(h){
+  if(h<4)  return{label:'IA no controle',cor:'green',icon:'🤖',canal:'Automático',urgencia:0};
+  if(h<24) return{label:'Follow-up IA ativo',cor:'green',icon:'✅',canal:'E-mail / SMS auto',urgencia:1};
+  if(h<48) return{label:'Checar — humano',cor:'amber',icon:'⚠️',canal:'E-mail ou SMS',urgencia:2};
+  if(h<72) return{label:'TOCAR AGORA',cor:'red',icon:'🔴',canal:'📞 Ligar agora',urgencia:3};
+  if(h<500)return{label:'URGENTE reativar',cor:'red',icon:'🚨',canal:'📞 + e-mail',urgencia:4};
+  return{label:'NPS / Upsell',cor:'blue',icon:'💛',canal:'E-mail / SMS',urgencia:0};
+}
+const lcClass={green:'lc-ok',amber:'lc-warn',red:'lc-hot',blue:'lc-blue'};
+
+const leads=[];
+
+/* ═══ ETIQUETAS ═══ */
+let tagDefs=[
+  {id:'interessado',              nome:'Interessado',                cor:'#3b6ef5'},
+  {id:'agendado',                 nome:'Agendado',                   cor:'#8b5cf6'},
+  {id:'escalado_ia_sem_resposta', nome:'Escalado · IA sem resposta', cor:'#f59e0b'},
+  {id:'escalado_humano_solicitado',nome:'Escalado · pediu humano',   cor:'#ef4444'},
+  {id:'cliente_ativo',            nome:'Cliente ativo',              cor:'#10b981'},
+  {id:'resolvido',                nome:'Resolvido',                  cor:'#64748b'},
+];
+function tagDef(id){return tagDefs.find(t=>t.id===id)||{nome:id,cor:'#94a3b8'};}
+function tagChip(id,removable,leadNome){const t=tagDef(id);return`<span class="tag-chip" style="background:${t.cor}1a;color:${t.cor}">${t.nome}${removable?`<span class="tag-x" onclick="event.stopPropagation();removeTag('${leadNome}','${id}')">✕</span>`:''}</span>`;}
+function tagsHTML(arr,removable,leadNome){return(arr||[]).map(id=>tagChip(id,removable,leadNome)).join('');}
+
+// atribui etiquetas aos leads do mock
+const tagMap={
+  'Marina Costa':['interessado'],
+  'Rafael Lima':['interessado','escalado_ia_sem_resposta'],
+  'Joana & Pedro':['interessado','escalado_humano_solicitado'],
+  'Família Souza':['agendado'],
+  'Camila Reis':['escalado_ia_sem_resposta'],
+  'Bruno Alves':['escalado_humano_solicitado'],
+  'Letícia M.':['agendado'],
+  'Thiago N.':['interessado'],
+  'Aline F.':['cliente_ativo','resolvido'],
+  'Diego P.':['cliente_ativo','resolvido'],
+};
+leads.forEach(l=>{l.tags=tagMap[l.nome]||[];});
+
+// tarefas iniciais por lead (derivadas da etapa) — persistem ao marcar
+const todosMap={
+  'Marina Costa':[{txt:'Enviar 3 orçamentos',done:false},{txt:'Agendar call do Guto',done:false},{txt:'Confirmar data',done:true}],
+  'Rafael Lima':[{txt:'Follow-up dos orçamentos',done:false},{txt:'Confirmar nº de convidados',done:false}],
+  'Joana & Pedro':[{txt:'Retornar contato (pediu humano)',done:false},{txt:'Checar disponibilidade 22/nov',done:true}],
+  'Família Souza':[{txt:'Marcar degustação',done:false},{txt:'Enviar cardápio exclusivo',done:true}],
+  'Camila Reis':[{txt:'Tentar ligação (3ª vez)',done:false}],
+  'Bruno Alves':[{txt:'Guto assumir handoff',done:false},{txt:'Rever proposta R$75k',done:false}],
+};
+leads.forEach(l=>{l.todos=todosMap[l.nome]||[{txt:'Primeiro contato',done:l.st>0}];});
+
+/* ═══ PERSISTÊNCIA (localStorage — sobrevive ao reload) ═══ */
+const LS_KEY='omnilead_clube_carvao_v1';
+function persist(){
+  try{
+    const snap={
+      leads:leads.map(l=>({nome:l.nome,st:l.st,tags:l.tags,todos:l.todos,nota:l.nota||'',obs:l.obs,rec:l.rec,pend:l.pend,resp:l.resp})),
+      tagDefs
+    };
+    localStorage.setItem(LS_KEY,JSON.stringify(snap));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);if(!raw)return;
+    const snap=JSON.parse(raw);
+    if(snap.tagDefs&&snap.tagDefs.length){tagDefs.length=0;snap.tagDefs.forEach(t=>tagDefs.push(t));}
+    (snap.leads||[]).forEach(s=>{const l=leads.find(x=>x.nome===s.nome);if(l){l.st=s.st??l.st;l.tags=s.tags||l.tags;l.todos=s.todos||l.todos;l.nota=s.nota||'';l.obs=s.obs??l.obs;l.rec=s.rec??l.rec;l.pend=s.pend??l.pend;l.resp=s.resp??l.resp;}});
+  }catch(e){}
+}
+function resetState(){if(confirm('Limpar tudo e voltar aos dados de exemplo?')){localStorage.removeItem(LS_KEY);location.reload();}}
+loadState();
+
+let tagFilter=null; // etiqueta ativa no filtro do funil
+function refreshTagViews(){persist();if(typeof buildKanban==='function')buildKanban();if(typeof buildClientes==='function')buildClientes();renderTagBar();}
+function addTag(nome,id){const l=leads.find(x=>x.nome===nome);if(l&&!l.tags.includes(id)){l.tags.push(id);toast('Etiqueta adicionada ✓');drillLead(nome);refreshTagViews();}}
+function removeTag(nome,id){const l=leads.find(x=>x.nome===nome);if(l){l.tags=l.tags.filter(t=>t!==id);toast('Etiqueta removida');drillLead(nome);refreshTagViews();}}
+function openTagManager(){
+  const body=`<p class="text-sm text-gray-500 mb-4">Crie, renomeie e escolha a cor das etiquetas. Elas aparecem nos leads, clientes e no filtro do funil.</p>
+    <div class="space-y-2 mb-4">${tagDefs.map((t,i)=>`
+      <div class="field-wrap flex items-center gap-3">
+        <input type="color" value="${t.cor}" onchange="tagDefs[${i}].cor=this.value;refreshTagViews()" class="w-8 h-8 rounded cursor-pointer shrink-0">
+        <input value="${t.nome}" onblur="tagDefs[${i}].nome=this.value;refreshTagViews();toast('Etiqueta salva ✓')" class="flex-1 text-sm font-semibold bg-transparent outline-none">
+        <span class="text-[11px] text-gray-400 shrink-0">${leads.filter(l=>l.tags.includes(t.id)).length} leads</span>
+        <button onclick="if(confirm('Remover etiqueta &quot;${t.nome}&quot;? Ela sai de todos os leads.')){const id=tagDefs[${i}].id;tagDefs.splice(${i},1);leads.forEach(l=>l.tags=l.tags.filter(x=>x!==id));refreshTagViews();openTagManager();toast('Etiqueta removida');}" class="text-gray-300 hover:text-red-400 clk shrink-0">🗑</button>
+      </div>`).join('')}</div>
+    <div class="flex gap-2">
+      <input id="newTagName" placeholder="Nome da nova etiqueta" class="flex-1 field-wrap text-sm outline-none">
+      <button onclick="const v=document.getElementById('newTagName').value.trim();if(v){tagDefs.push({id:'tag_'+Date.now(),nome:v,cor:'#3b6ef5'});refreshTagViews();openTagManager();toast('Etiqueta criada ✓');}" class="bg-brand-500 text-white px-4 rounded-lg text-sm font-semibold clk">+ Criar</button>
+    </div>`;
+  openDrawer('🏷️ Gerenciar etiquetas',body);
+}
+function filterByTag(id){tagFilter=(tagFilter===id?null:id);buildKanban();renderTagBar();}
+function renderTagBar(){
+  const bar=document.getElementById('tagBar');if(!bar)return;
+  bar.innerHTML=`<button onclick="filterByTag(null)" class="tag-filter ${!tagFilter?'tf-on':''}">Todas</button>`+
+    tagDefs.map(t=>{const n=leads.filter(l=>l.tags.includes(t.id)).length;return`<button onclick="filterByTag('${t.id}')" class="tag-filter ${tagFilter===t.id?'tf-on':''}" style="${tagFilter===t.id?`background:${t.cor};color:#fff;border-color:${t.cor}`:`color:${t.cor};border-color:${t.cor}55`}">${t.nome} <span class="opacity-60">${n}</span></button>`;}).join('')+
+    `<button onclick="openTagManager()" class="tag-filter" style="color:#64748b;border-style:dashed">⚙ Gerenciar etiquetas</button>`+
+    `<button onclick="openLeadsAntigos()" class="tag-filter" style="color:#f97316;border-color:#f9731655">🧹 Leads antigos</button>`;
+}
+
+/* ═══ SCORE DE CALL ═══ */
+function scoreRingSVG(val,color='#10b981'){
+  const r=28,c=32,circ=2*Math.PI*r,dash=(val/100)*circ;
+  return`<div class="score-ring"><svg width="64" height="64" viewBox="0 0 64 64"><circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="6"/><circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${color}" stroke-width="6" stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/></svg><div class="score-ring-label" style="color:${color}">${val}%</div></div>`;}
+function scoreBarsHTML(cs){
+  const items=[{l:'Pitch',v:cs.pitch,c:'#10b981'},{l:'Objeções',v:cs.objecoes,c:'#f59e0b'},{l:'Técnicas',v:cs.tecnicas,c:'#3b6ef5'},{l:'Conversão',v:parseInt(cs.conversao)||23,c:'#8b5cf6'}];
+  return items.map(i=>`<div class="score-bar-wrap"><span class="score-bar-label">${i.l}</span><div class="score-bar-track"><div class="score-bar-fill" style="width:${i.v}%;background:${i.c}"></div></div><span class="text-xs font-bold ml-1" style="color:${i.c}">${i.v}%</span></div>`).join('');}
+function callScoreBlock(cs){
+  return`<div class="bg-gray-900 rounded-xl p-4 mt-2 text-white">
+   <div class="flex items-center gap-4 mb-3">${scoreRingSVG(cs.total)}
+    <div class="flex-1"><div class="text-sm font-bold mb-1">Score da Call</div>${scoreBarsHTML(cs)}</div></div>
+   <div class="text-xs text-green-400 font-bold mb-1">Conversão ${cs.conversao} ↑</div>
+   <div class="space-y-1">${cs.insights.map((ins,i)=>`<div class="text-[11px] ${i===1?'text-amber-300':i===3?'text-blue-300':'text-gray-300'}">${i===1?'⚠️':'✅'} ${ins}</div>`).join('')}</div>
+  </div>`;}
+
+/* ═══ TIMELINE ═══ */
+function renderTimeline(hist,lead){
+  return`<div class="tl">${hist.map(h=>`
+   <div class="tl-item">
+    <div class="tl-dot ${h.dot}">●</div>
+    <div class="tl-body">
+     <div class="tl-date">${h.d}</div>
+     <div class="tl-title">${h.t}</div>
+     <div class="tl-detail">${h.det}</div>
+     ${h.callScore&&lead&&lead.callScore?callScoreBlock(lead.callScore):''}
+    </div>
+   </div>`).join('')}</div>`;}
+
+/* ═══ CONTATO BLOCK ═══ */
+function contactBlock(l){
+  const rec=nextContactRec(l.lastContactH);
+  const urgBg={0:'bg-green-50 border-green-200',1:'bg-green-50 border-green-200',2:'bg-amber-50 border-amber-300',3:'bg-red-50 border-red-300',4:'bg-red-50 border-red-400'}[rec.urgencia];
+  const urgText={0:'text-green-700',1:'text-green-700',2:'text-amber-700',3:'text-red-700',4:'text-red-700'}[rec.urgencia];
+  return`<div class="card p-3 mb-3 border ${urgBg}">
+   <div class="text-xs font-semibold text-gray-500 mb-2">📡 Contato</div>
+   <div class="flex items-start justify-between gap-2">
+    <div><div class="text-xs text-gray-400">Último</div><div class="text-sm font-semibold">${l.lastContactAt} · ${l.lastContactCh}</div><div class="text-[11px] text-gray-400">por ${l.lastContactBy}</div></div>
+    <span class="chip ${urgBg} ${urgText} shrink-0">${rec.icon} ${rec.label}</span>
+   </div>
+   <div class="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between">
+    <div><div class="text-[11px] text-gray-400">Canal sugerido</div><div class="text-xs font-semibold ${urgText}">${rec.canal}</div></div>
+    <button onclick="toast('Contato registrado ✓')" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk">Registrar contato</button>
+   </div></div>`;}
+
+/* ═══ DRAWER LEAD ═══ */
+function drillLead(nome,tabDef){
+  const l=leads.find(x=>x.nome===nome);const tab=tabDef||'resumo';
+  const isCliente=l.st===5;
+  const tabs=isCliente?[['resumo','📋 Resumo'],['historico','🕐 Histórico'],['compras','🛒 Compras'],['contato','📡 Contato']]:[['resumo','📋 Resumo'],['historico','🕐 Histórico'],['contato','📡 Contato']];
+  const tabBar=`<div class="flex gap-1 mb-4 bg-gray-100 p-1 rounded-xl overflow-x-auto">${tabs.map(([id,label])=>`<button onclick="drillLead('${nome}','${id}')" class="dtab flex-1 ${tab===id?'active':''}">${label}</button>`).join('')}</div>`;
+  const sc=l.score>=80?'bg-green-100 text-green-700':l.score>=60?'bg-amber-100 text-amber-700':'bg-gray-100';
+  let body='';
+  if(tab==='resumo'){
+    const stageOpts=stages.map((s,i)=>`<option value="${i}" ${i===l.st?'selected':''}>${s.n}</option>`).join('');
+    const respOpts=['Sofia IA','Guto','Bel'].map(r=>`<option ${r===l.resp?'selected':''}>${r}</option>`).join('');
+    body=`<div class="flex items-center gap-3 mb-3">
+      <div class="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center text-xl">${src[l.src]}</div>
+      <div class="flex-1">
+        <div class="font-bold text-base" contenteditable="true" onblur="saveLeadField('${l.nome}','nome',this)" title="Clique para editar">${l.nome}</div>
+        <div class="flex items-center gap-2 mt-0.5 flex-wrap">${byBadge(l.src)}<span class="text-xs text-gray-400" contenteditable="true" onblur="saveLeadField('${l.nome}','fone',this)" title="Editar telefone">${l.fone}</span></div>
+      </div>
+      <span class="ml-auto chip ${sc}">score ${l.score}</span>
+    </div>
+    <div class="grid grid-cols-3 gap-2 text-center mb-3">
+      <div class="card p-2"><div class="text-[10px] text-gray-400">Convidados</div><div class="font-bold" contenteditable="true" onblur="saveLeadField('${l.nome}','conv',this)" title="Editar">${l.conv}</div></div>
+      <div class="card p-2"><div class="text-[10px] text-gray-400">Evento</div><div class="font-bold" contenteditable="true" onblur="saveLeadField('${l.nome}','ev',this)" title="Editar">${l.ev}</div></div>
+      <div class="card p-2"><div class="text-[10px] text-gray-400">Valor (R$k)</div><div class="font-bold text-emerald-600" contenteditable="true" onblur="saveLeadField('${l.nome}','val',this)" title="Editar">${l.val}</div></div>
+    </div>
+    <div class="mb-3 flex items-center gap-2 flex-wrap">
+      <select onchange="saveLeadField('${l.nome}','st',this);toast('Etapa atualizada ✓')" class="text-xs font-semibold px-2 py-1 rounded-lg border-none text-white cursor-pointer" style="background:${stages[l.st].c}">${stageOpts}</select>
+      <select onchange="saveLeadField('${l.nome}','resp',this);toast('Responsável atualizado ✓')" class="chip bg-gray-100 text-gray-700 border-none cursor-pointer text-xs">${respOpts}</select>
+      <button onclick="toast('Contato registrado ✓')" class="ml-auto text-xs border border-gray-300 px-2.5 py-1 rounded-lg clk">📞 Registrar contato</button>
+    </div>
+    <div class="mb-3">
+      <div class="field-label">🏷️ Etiquetas</div>
+      <div class="field-wrap flex items-center gap-1 flex-wrap">${l.tags.length?tagsHTML(l.tags,true,l.nome):'<span class="text-xs text-gray-300">Sem etiquetas</span>'}
+        <select onchange="if(this.value){addTag('${l.nome}',this.value);}this.value='';" class="text-xs border border-dashed border-gray-300 rounded-lg px-2 py-1 text-gray-500 bg-transparent cursor-pointer ml-1"><option value="">+ etiqueta</option>${tagDefs.filter(t=>!l.tags.includes(t.id)).map(t=>`<option value="${t.id}">${t.nome}</option>`).join('')}</select>
+      </div>
+    </div>
+    ${contactBlock(l)}
+    <div class="mb-3">
+      <div class="field-label">🔎 Observação <span class="edit-hint">clique para editar</span></div>
+      <div class="field-wrap"><div class="text-sm" contenteditable="true" onblur="saveLeadField('${l.nome}','obs',this)">${l.obs}</div></div>
+    </div>
+    <div class="mb-3">
+      <div class="field-label">💡 Recomendação <span class="edit-hint">clique para editar</span></div>
+      <div class="field-wrap" style="border-left:3px solid #3b6ef5"><div class="text-sm text-brand-700" contenteditable="true" onblur="saveLeadField('${l.nome}','rec',this)">${l.rec}</div></div>
+    </div>
+    <div class="mb-4">
+      <div class="field-label">📌 Pendência <span class="edit-hint">clique para editar</span></div>
+      <div class="field-wrap" style="border-left:3px solid ${l.pend==='—'?'#e5e7eb':'#f59e0b'}"><div class="text-sm ${l.pend==='—'?'text-gray-400':'text-amber-700'}" contenteditable="true" onblur="saveLeadField('${l.nome}','pend',this)">${l.pend}</div></div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="show('inbox',document.querySelectorAll('.nav-item')[3]);closeDrawer()" class="flex-1 bg-brand-500 text-white py-2 rounded-lg text-sm font-semibold clk">Abrir conversa</button>
+      <button onclick="toast('Tarefa criada')" class="border border-gray-300 px-3 rounded-lg text-sm clk">+ Tarefa</button>
+      <button onclick="if(confirm('Arquivar este lead?'))toast('Lead arquivado')" class="border border-red-200 text-red-400 px-3 rounded-lg text-sm clk">🗑</button>
+    </div>`;
+  }else if(tab==='historico'){
+    body=`<div class="text-xs text-gray-400 mb-4">${l.history.length} evento(s)</div>`+renderTimeline(l.history,l);
+  }else if(tab==='compras'&&l.compras){
+    body=`<div class="space-y-3">${l.compras.map(c=>`<div class="card p-4"><div class="flex items-center justify-between mb-1"><span class="font-semibold text-sm">${c.prod}</span><span class="chip bg-emerald-100 text-emerald-700">${c.status}</span></div><div class="text-xs text-gray-400">${c.dt}</div><div class="font-extrabold text-emerald-600 mt-1">${c.val}</div></div>`).join('')}
+     <div class="card p-3"><div class="text-xs font-semibold text-gray-500 mb-1">💡 Oportunidade</div><div class="text-sm text-brand-700 bg-brand-50 rounded-lg p-2">Pedir indicação + NPS + verificar próximo evento.</div></div></div>`;
+  }else if(tab==='contato'){
+    body=`${contactBlock(l)}<div class="card p-3 mt-3"><div class="text-xs font-semibold text-gray-500 mb-2">📅 Histórico de contatos</div>
+     ${l.history.slice(0,5).map(h=>`<div class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0"><div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-sm">📞</div><div class="flex-1"><div class="text-sm font-medium">${h.t}</div><div class="text-xs text-gray-400">${h.d}</div></div></div>`).join('')}</div>`;
+  }
+  openDrawer(l.nome,tabBar+body);
+}
+
+/* ═══ HELPERS ═══ */
+function leadRow(l){const r=nextContactRec(l.lastContactH);return`<div class="card p-3 mb-2 clk hover:shadow-md" onclick="drillLead('${l.nome}')"><div class="flex items-center justify-between"><span class="font-semibold text-sm">${l.nome}</span><span>${src[l.src]} ${l.owner}</span></div><div class="flex items-center gap-2 mt-1 text-[11px] flex-wrap"><span class="chip bg-gray-100">${srcNome[l.src]}</span><span class="chip ${l.score>=80?'bg-green-100 text-green-700':l.score>=60?'bg-amber-100 text-amber-700':'bg-gray-100'}">score ${l.score}</span>${tagsHTML(l.tags)}</div><div class="mt-1 flex items-center justify-between text-xs text-gray-400"><span>${l.conv} conv · ${l.ev}</span><span class="font-bold text-emerald-600">R$${l.val}k</span></div><div class="mt-1 pt-1 border-t border-gray-50 flex items-center justify-between text-[11px]"><span class="text-gray-400">⏱ ${l.lastContactAt}</span><span class="${lcClass[r.cor]||'text-gray-400'} font-semibold">${r.icon} ${r.label.substring(0,20)}</span></div></div>`;}
+function listDrawer(title,arr){openDrawer(title,`<div class="text-xs text-gray-400 mb-3">${arr.length} contato(s)</div>`+arr.map(leadRow).join(''));}
+function drillStage(i){listDrawer('Etapa: '+stages[i].n,leads.filter(l=>l.st===i));}
+function drillPerson(p){listDrawer('Responsável: '+p,leads.filter(l=>l.resp===p));}
+function drillRisk(){listDrawer('⚠️ Em risco',leads.filter(l=>nextContactRec(l.lastContactH).urgencia>=3));}
+function drillFollowVencido(){listDrawer('⏰ Follow-ups vencidos',leads.filter(l=>l.pend.toLowerCase().includes('vencid')||l.next.includes('D+')));}
+function drillSemCall(){listDrawer('Qualificados sem call',leads.filter(l=>l.st===2&&l.pend.toLowerCase().includes('call')));}
+function drillField(f){openDrawer('Tempo de 1ª resposta',`<div class="text-sm text-gray-600 mb-3">Mais rápidos hoje:</div>`+[['Sofia IA','41s','🤖'],['Sofia IA','38s','🤖'],['Guto','12min','👤'],['Bel','1h08','👤']].map(r=>`<div class="card p-3 mb-2 flex justify-between"><span>${r[2]} ${r[0]}</span><span class="font-bold">${r[1]}</span></div>`).join(''));}
+function openForm(t){const f={lead:'Novo lead manual',venda:'Registrar venda manual',csv:'Importar CSV'}[t];
+  openDrawer(f,`<div class="space-y-3 text-sm">${t==='csv'?`<div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center text-gray-400">⬆ Arraste CSV/Excel aqui</div>`:`<div><label class="text-xs text-gray-500">Nome</label><input class="w-full border rounded-lg px-3 py-2 mt-1"></div><div><label class="text-xs text-gray-500">Telefone / e-mail / @</label><input class="w-full border rounded-lg px-3 py-2 mt-1"></div><div><label class="text-xs text-gray-500">Origem</label><select class="w-full border rounded-lg px-3 py-2 mt-1"><option>Indicação</option><option>Telefone</option><option>Presencial</option><option>Feira</option><option>Voz IA</option></select></div><div class="grid grid-cols-2 gap-2"><div><label class="text-xs text-gray-500">Convidados</label><input class="w-full border rounded-lg px-3 py-2 mt-1"></div><div><label class="text-xs text-gray-500">Valor</label><input class="w-full border rounded-lg px-3 py-2 mt-1"></div></div><div><label class="text-xs text-gray-500">Data do evento</label><input type="date" class="w-full border rounded-lg px-3 py-2 mt-1"></div>`}<button onclick="toast('${f} salvo ✓');closeDrawer()" class="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold mt-2 clk">Salvar</button></div>`);}
+
+/* ═══ KANBAN ═══ */
+const kb=document.getElementById('kanban');
+function buildKanban(){
+  kb.innerHTML='';
+  stages.forEach((s,i)=>{
+    let items=leads.filter(l=>l.st===i);
+    if(tagFilter)items=items.filter(l=>l.tags.includes(tagFilter));
+    const col=document.createElement('div');col.className='w-72 shrink-0';
+    const emptyState=`<div class="empty-col card"><div class="empty-icon">📭</div><div class="text-sm font-medium mb-1">Sem leads aqui</div><div class="text-xs mb-3">${tagFilter?'Nenhum lead com essa etiqueta nesta etapa.':'Nenhum lead nesta etapa ainda.'}</div><button onclick="openForm('lead')" class="text-xs bg-brand-50 text-brand-600 font-semibold px-3 py-1.5 rounded-lg clk">+ Adicionar lead</button></div>`;
+    col.innerHTML=`<div class="flex items-center justify-between mb-2 px-1"><div class="font-semibold text-sm flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:${s.c}"></span>${s.n}</div><span class="text-xs text-gray-400">${items.length}</span></div>
+     <div class="col-scroll space-y-2">${items.length===0?emptyState:items.map(l=>{const r=nextContactRec(l.lastContactH);return`<div class="card p-3 clk hover:shadow-md" onclick="drillLead('${l.nome}')">
+      <div class="flex items-center justify-between"><span class="font-semibold text-sm">${l.nome}</span>${byBadge(l.src)}</div>
+      ${l.tags.length?`<div class="mt-1.5">${tagsHTML(l.tags)}</div>`:''}
+      <div class="flex items-center gap-2 mt-1 text-[11px] text-gray-500"><span class="chip bg-gray-100">${l.owner} ${l.owner==='🤖'?'IA':'humano'}</span><span class="chip ${l.next==='agora'||l.next.includes('D+')?'bg-amber-100 text-amber-700':'bg-gray-100'}">⏰ ${l.next}</span>${l.callScore?'<span class="chip bg-purple-100 text-purple-700">📊 score</span>':''}</div>
+      <div class="mt-1 flex items-center justify-between"><span class="text-xs text-gray-400">evento ${l.ev}</span><span class="font-bold text-sm text-emerald-600">R$${l.val}k</span></div>
+      <div class="mt-2 pt-1 border-t border-gray-50 flex items-center justify-between text-[11px]"><span class="text-gray-400">⏱ ${l.lastContactAt}</span><span class="${lcClass[r.cor]||'text-gray-400'} font-semibold">${r.icon} ${r.label.substring(0,18)}</span></div>
+     </div>`;}).join('')}</div>`;
+    kb.appendChild(col);
+  });
+}
+buildKanban();
+renderTagBar();
+
+/* ═══ CLIENTES ═══ */
+function buildClientes(){
+document.getElementById('clientesList').innerHTML=leads.filter(l=>l.st===5).map(l=>{const r=nextContactRec(l.lastContactH);return`<div class="card p-5 clk hover:shadow-md" onclick="drillLead('${l.nome}','compras')">
+ <div class="flex items-center justify-between mb-3"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-full bg-emerald-50 flex items-center justify-center text-xl">${src[l.src]}</div><div><div class="font-bold flex items-center gap-2">${l.nome}</div><div class="mt-0.5">${tagsHTML(l.tags)}</div><div class="text-xs text-gray-400 mt-0.5">${l.fone} · evento ${l.ev}</div></div></div><div class="text-right"><div class="font-extrabold text-emerald-600">R$${l.val}k</div><div class="text-[11px] text-gray-400">${l.conv} convidados</div></div></div>
+ <div class="grid grid-cols-3 gap-3 text-center mb-3"><div class="bg-gray-50 rounded-lg p-2"><div class="text-[10px] text-gray-400">Compras</div><div class="font-bold">${(l.compras||[]).length}</div></div><div class="bg-gray-50 rounded-lg p-2"><div class="text-[10px] text-gray-400">Último contato</div><div class="font-bold text-xs">${l.lastContactAt}</div></div><div class="bg-gray-50 rounded-lg p-2"><div class="text-[10px] text-gray-400">Via</div><div class="font-bold text-xs">${l.lastContactCh}</div></div></div>
+ <div class="flex items-center justify-between"><span class="${lcClass[r.cor]||'text-gray-500'} text-sm font-semibold">${r.icon} ${r.label}</span>
+  <div class="flex gap-2" onclick="event.stopPropagation()"><button onclick="drillLead('${l.nome}','historico')" class="text-xs border border-gray-300 px-2.5 py-1.5 rounded-lg clk">🕐 Histórico</button><button onclick="toast('NPS enviado')" class="text-xs border border-gray-300 px-2.5 py-1.5 rounded-lg clk">⭐ NPS</button><button onclick="toast('Pedindo indicação...')" class="text-xs bg-brand-500 text-white px-2.5 py-1.5 rounded-lg clk">🤝 Indicação</button></div></div>
+</div>`;}).join('');
+}
+buildClientes();
+
+/* ═══ PRÓXIMAS COMPRAS / EVENTOS (14 dias) ═══ */
+const proxCompras=[];
+(function renderProxCompras(){
+  const el=document.getElementById('proxComprasList');if(!el)return;
+  if(!proxCompras.length){el.innerHTML='<div class="text-sm text-gray-400 py-3">Nenhuma compra prevista nos próximos 14 dias. Cadastre uma data em <b>Clientes</b> → clique no nome.</div>';return;}
+  el.innerHTML='<div class="space-y-2">'+proxCompras.map(c=>`
+    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl clk hover:bg-gray-100" onclick="drillLead('${c.nome}','compras')">
+      <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-lg shrink-0">📅</div>
+      <div class="flex-1 min-w-0"><div class="font-semibold text-sm">${c.nome} ${c.recorrente?'<span class="chip bg-emerald-100 text-emerald-700 ml-1">recompra</span>':''}</div><div class="text-xs text-gray-400">${c.tipo} · ${c.conv} convidados · ${c.ev}</div></div>
+      <div class="text-right shrink-0"><div class="font-bold text-emerald-600">${c.val}</div><div class="text-[11px] text-amber-600 font-semibold">${c.dias}</div></div>
+    </div>`).join('')+'</div>';
+})();
+
+/* ═══ AGENDA (fiel ao Falacomigo) ═══ */
+function agendaTab(id,el){
+  document.getElementById('ag-proximos').classList.toggle('hidden',id!=='proximos');
+  document.getElementById('ag-horarios').classList.toggle('hidden',id!=='horarios');
+  document.querySelectorAll('.ag-tab').forEach(t=>{t.classList.remove('active');t.classList.add('text-gray-500');});
+  el.classList.add('active');el.classList.remove('text-gray-500');
+}
+// agendamentos (kind=meeting) agrupados por dia
+const agendamentos=[];
+const agSt={agendado:'bg-amber-100 text-amber-700',confirmado:'bg-green-100 text-green-700',done:'bg-brand-100 text-brand-700',cancelado:'bg-red-100 text-red-600'};
+const agTipoIcon={Degustação:'🍽️',Call:'📞',Visita:'🏛️'};
+function renderAgenda(){
+  const el=document.getElementById('agendaList');if(!el)return;
+  if(!agendamentos.length){el.innerHTML='<div class="card p-12 text-center"><div class="text-5xl mb-3">📅</div><h3 class="font-semibold mb-1">Nenhum agendamento ainda</h3><p class="text-sm text-gray-400 max-w-md mx-auto">Quando a IA agendar atendimentos com clientes, eles aparecem aqui. Configure os horários disponíveis na aba <b>Horários</b>.</p></div>';return;}
+  el.innerHTML=agendamentos.map(g=>`
+    <section>
+      <h2 class="font-semibold mb-3 text-xs text-gray-400 uppercase tracking-wide">${g.dia}</h2>
+      <div class="space-y-2">${g.itens.map((m,i)=>`
+        <div class="card p-4 flex items-center gap-3 clk hover:shadow-md" onclick="drillLead('${m.nome}')">
+          <div class="w-14 shrink-0 text-center"><div class="text-lg font-bold">${m.hora}</div><div class="text-sm">${agTipoIcon[m.tipo]||'📌'}</div></div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium truncate">${m.nome} <span class="text-xs text-gray-400 font-normal">· ${m.tipo}</span></div>
+            <div class="text-xs text-gray-400 truncate">${m.nota}</div>
+            <div class="text-[11px] mt-1 flex items-center gap-2"><span class="chip ${agSt[m.status]}">${m.status}</span><span class="text-gray-400">${m.por}</span></div>
+          </div>
+          <div class="flex gap-1 shrink-0" onclick="event.stopPropagation()">
+            <button onclick="toast('Lembrete enviado ✓')" class="text-xs border border-gray-200 px-2 py-1.5 rounded-lg clk" title="Enviar lembrete">🔔</button>
+            <button onclick="if(confirm('Cancelar agendamento de ${m.nome}?'))toast('Agendamento cancelado')" class="text-gray-300 hover:text-red-400 px-2 py-1.5 clk" title="Cancelar">✕</button>
+          </div>
+        </div>`).join('')}</div>
+    </section>`).join('');
+}
+renderAgenda();
+
+// aba Horários — duração + grid semanal
+let agDuration=60;
+const agDiasDefault={seg:[['09:00','18:00']],ter:[['09:00','18:00']],qua:[['09:00','18:00']],qui:[['09:00','18:00']],sex:[['09:00','18:00']],sab:[['10:00','16:00']]};
+const agDias=[['seg','Segunda'],['ter','Terça'],['qua','Quarta'],['qui','Quinta'],['sex','Sexta'],['sab','Sábado'],['dom','Domingo']];
+let agSlots=JSON.parse(JSON.stringify(agDiasDefault));
+function renderAgDuration(){
+  document.getElementById('agDuration').innerHTML=[15,30,45,60,90,120].map(d=>`<button onclick="agDuration=${d};renderAgDuration()" class="px-3 py-1.5 rounded-lg text-sm border transition ${agDuration===d?'bg-brand-500 border-brand-500 text-white':'border-gray-200 hover:border-brand-300'}">${d>=60?(d/60)+'h'+(d%60?' '+(d%60)+'min':''):d+' min'}</button>`).join('');
+}
+function renderAgSlots(){
+  document.getElementById('agSlots').innerHTML=agDias.map(([k,label])=>{
+    const ranges=agSlots[k];const enabled=!!ranges;
+    return`<div class="flex items-start gap-3 pb-3 border-b border-gray-50 last:border-0">
+      <label class="flex items-center gap-2 w-28 pt-2 shrink-0 clk"><input type="checkbox" ${enabled?'checked':''} onchange="toggleAgDay('${k}')" class="accent-brand-500"><span class="${enabled?'font-medium':'text-gray-400'} text-sm">${label}</span></label>
+      <div class="flex-1 space-y-2">${enabled?ranges.map((r,i)=>`
+        <div class="flex items-center gap-2 flex-wrap">
+          <input type="time" value="${r[0]}" onchange="agSlots['${k}'][${i}][0]=this.value" class="border border-gray-200 rounded-lg px-2 py-1 text-sm">
+          <span class="text-gray-400 text-sm">até</span>
+          <input type="time" value="${r[1]}" onchange="agSlots['${k}'][${i}][1]=this.value" class="border border-gray-200 rounded-lg px-2 py-1 text-sm">
+          ${ranges.length>1?`<button onclick="agSlots['${k}'].splice(${i},1);renderAgSlots()" class="text-gray-300 hover:text-red-400 p-1 clk">🗑</button>`:''}
+          ${i===ranges.length-1?`<button onclick="agSlots['${k}'].push(['14:00','18:00']);renderAgSlots()" class="text-xs text-brand-500 font-medium clk">+ intervalo</button>`:''}
+        </div>`).join(''):'<span class="text-xs text-gray-400 pt-2 block">Fechado</span>'}</div>
+    </div>`;
+  }).join('');
+}
+function toggleAgDay(k){if(agSlots[k])delete agSlots[k];else agSlots[k]=[['09:00','18:00']];renderAgSlots();}
+renderAgDuration();renderAgSlots();
+
+/* ═══ CONEXÕES DE CANAIS (múltiplos WhatsApp oficial+não-oficial) ═══ */
+let conexoes=[];
+const conIcon={whatsapp:'🟢',whatsapp_oficial:'✅',instagram:'📷'};
+const conStatusCor={conectado:'bg-green-100 text-green-700',desconectado:'bg-gray-100 text-gray-500',erro:'bg-red-100 text-red-600',conectando:'bg-amber-100 text-amber-700'};
+function fakeQR(){let s='<div style="display:grid;grid-template-columns:repeat(11,1fr);gap:2px;width:154px;height:154px;margin:0 auto">';const seed=[1,0,1,1,0,1,0,0,1,0,1,0,1,0,0,1,1,0,1,0,1,1,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,1,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,0,1,0,1,0,1,1,0,1,0,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,0,1,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,1,0,1,0,1,0,1,1,0,1,0];for(let i=0;i<121;i++)s+=`<div style="background:${seed[i]?'#1f2733':'transparent'};aspect-ratio:1"></div>`;return s+'</div>';}
+function openCanais(){
+  const body=`
+    <p class="text-sm text-gray-500 mb-4">Conecte quantos números quiser. Pode ter o <b>WhatsApp Oficial</b> (Meta, selo verde) e vários <b>não-oficiais</b> (QR code) ao mesmo tempo — ex: um pra atendimento, outro pra captação.</p>
+    <div class="space-y-2 mb-5">${conexoes.map((c,i)=>`
+      <div class="card p-3 flex items-center gap-3">
+        <span class="text-2xl shrink-0">${conIcon[c.canal]}</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2"><span class="font-semibold text-sm truncate" contenteditable="true" onblur="conexoes[${i}].nome=this.textContent.trim();toast('Nome salvo ✓')">${c.nome}</span>${c.tipo==='oficial'?'<span class="chip bg-emerald-100 text-emerald-800 text-[10px]">✓ oficial</span>':'<span class="chip bg-gray-100 text-gray-500 text-[10px]">não-oficial</span>'}</div>
+          <div class="text-[11px] text-gray-400">${c.num} · ${c.metodo}</div>
+        </div>
+        <span class="chip ${conStatusCor[c.status]} shrink-0">${c.status}</span>
+        <div class="flex gap-1 shrink-0">
+          ${c.canal==='whatsapp_oficial'?`<button onclick="openTemplates()" class="text-[11px] border border-cyan-300 text-cyan-700 px-2 py-1 rounded-md clk font-semibold">✅ Templates</button>`:''}
+          ${c.status==='desconectado'?`<button onclick="connectFlow('${c.id}')" class="text-[11px] bg-brand-50 text-brand-600 px-2 py-1 rounded-md clk font-semibold">Conectar</button>`:`<button onclick="if(confirm('Desconectar ${c.nome}?')){conexoes[${i}].status='desconectado';openCanais();toast('Desconectado')}" class="text-[11px] border border-gray-200 px-2 py-1 rounded-md clk">Pausar</button>`}
+          <button onclick="if(confirm('Remover ${c.nome}?')){conexoes.splice(${i},1);openCanais();toast('Removido')}" class="text-gray-300 hover:text-red-400 px-1 clk">🗑</button>
+        </div>
+      </div>`).join('')}</div>
+    <div class="font-bold text-sm text-gray-700 mb-2">+ Conectar novo canal</div>
+    <div class="grid grid-cols-1 gap-2">
+      <button onclick="connectNew('nao_oficial')" class="card p-3 flex items-center gap-3 clk hover:border-brand-200 text-left"><span class="text-2xl">🟢</span><div class="flex-1"><div class="font-semibold text-sm">WhatsApp (QR code)</div><div class="text-[11px] text-gray-400">Não-oficial · escaneia e conecta na hora · pode ter vários</div></div><span class="text-gray-300">→</span></button>
+      <button onclick="connectNew('oficial')" class="card p-3 flex items-center gap-3 clk hover:border-brand-200 text-left"><span class="text-2xl">✅</span><div class="flex-1"><div class="font-semibold text-sm">WhatsApp Oficial (Meta)</div><div class="text-[11px] text-gray-400">Selo verde · API Cloud · nunca cai · precisa aprovação Meta</div></div><span class="text-gray-300">→</span></button>
+      <button onclick="connectNew('instagram')" class="card p-3 flex items-center gap-3 clk hover:border-brand-200 text-left"><span class="text-2xl">📷</span><div class="flex-1"><div class="font-semibold text-sm">Instagram DM</div><div class="text-[11px] text-gray-400">Direct + comentários · via Meta Business</div></div><span class="text-gray-300">→</span></button>
+    </div>`;
+  openDrawer('📡 Conexões de canais',body);
+}
+function connectNew(tipo){
+  if(tipo==='nao_oficial')return connectFlow('new_qr');
+  if(tipo==='oficial'){
+    openDrawer('✅ Conectar WhatsApp Oficial',`<p class="text-sm text-gray-500 mb-4">WhatsApp Oficial via Meta Cloud API — selo verde, nunca é banido. Precisa de número dedicado e conta aprovada no Meta Business.</p>
+      <div class="space-y-3">
+        <div class="field-wrap"><div class="field-label">Nome da conexão</div><input class="w-full text-sm bg-transparent outline-none" placeholder="Ex: WhatsApp Oficial" value="WhatsApp Oficial"></div>
+        <div class="field-wrap"><div class="field-label">Phone Number ID (Meta)</div><input class="w-full text-sm bg-transparent outline-none" placeholder="Ex: 109xxxxxxxxxxx"></div>
+        <div class="field-wrap"><div class="field-label">Token de acesso permanente</div><input type="password" class="w-full text-sm bg-transparent outline-none" placeholder="EAAxxxxxx… (fica seguro no servidor)"></div>
+        <div class="field-wrap"><div class="field-label">WhatsApp Business Account ID</div><input class="w-full text-sm bg-transparent outline-none" placeholder="Ex: 102xxxxxxxxxxx"></div>
+      </div>
+      <button onclick="conexoes.push({id:'waof'+Date.now(),canal:'whatsapp_oficial',nome:'WhatsApp Oficial',tipo:'oficial',num:'novo',status:'conectado',metodo:'Meta Cloud API',inst:'verificado'});toast('WhatsApp Oficial conectado ✓');openCanais();" class="w-full bg-brand-500 text-white py-2.5 rounded-lg font-semibold text-sm clk mt-4">Conectar</button>
+      <button onclick="openCanais()" class="w-full text-gray-400 text-xs py-2 clk mt-1">← voltar</button>`);
+    return;
+  }
+  if(tipo==='instagram'){
+    openDrawer('📷 Conectar Instagram',`<p class="text-sm text-gray-500 mb-4">Instagram Direct + comentários via Meta Business. Conecta a conta comercial vinculada à sua página do Facebook.</p>
+      <div class="card p-5 text-center mb-4"><div class="text-4xl mb-2">📷</div><div class="text-sm text-gray-600 mb-3">Você será levado ao Meta para autorizar o acesso à conta @clubecarvao.</div><button onclick="conexoes.push({id:'ig'+Date.now(),canal:'instagram',nome:'@clubecarvao',tipo:'oficial',num:'Instagram DM',status:'conectado',metodo:'Meta Business',inst:'graph'});toast('Instagram conectado ✓');openCanais();" class="bg-brand-500 text-white px-5 py-2.5 rounded-lg font-semibold text-sm clk">🔵 Conectar com Meta</button></div>
+      <div class="space-y-2"><label class="field-wrap flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-brand-500 w-4 h-4"><span class="flex-1 text-sm">IA responde DMs automaticamente</span></label><label class="field-wrap flex items-center gap-3 cursor-pointer"><input type="checkbox" checked class="accent-brand-500 w-4 h-4"><span class="flex-1 text-sm">IA responde comentários</span></label></div>
+      <button onclick="openCanais()" class="w-full text-gray-400 text-xs py-2 clk mt-2">← voltar</button>`);
+    return;
+  }
+}
+function connectFlow(id){
+  // fluxo QR code (não-oficial)
+  openDrawer('🟢 Conectar WhatsApp (QR code)',`
+    <p class="text-sm text-gray-500 mb-4">Abra o WhatsApp no celular → <b>Aparelhos conectados</b> → <b>Conectar aparelho</b> → aponte para o código:</p>
+    <div class="card p-5 mb-3">${fakeQR()}</div>
+    <div class="text-center text-xs text-gray-400 mb-4">O código expira em 40s · <button onclick="toast('Novo QR gerado')" class="text-brand-500 font-semibold clk">gerar novo</button></div>
+    <div class="text-center text-xs text-gray-500 mb-3">— ou —</div>
+    <div class="flex gap-2 mb-4"><input id="pairPhone" class="flex-1 field-wrap text-sm outline-none" placeholder="Seu número: 5586999999999"><button onclick="toast('Código: 8 dígitos enviado ao número')" class="bg-gray-900 text-white px-3 rounded-lg text-sm clk">Código por SMS</button></div>
+    <button onclick="${id==='new_qr'?`conexoes.push({id:'wa'+Date.now(),canal:'whatsapp',nome:'Novo WhatsApp',tipo:'nao_oficial',num:'conectando…',status:'conectado',metodo:'QR code',inst:'inbound'});`:`(conexoes.find(c=>c.id==='${id}')||{}).status='conectado';`}toast('WhatsApp conectado ✓');openCanais();" class="w-full bg-green-500 text-white py-2.5 rounded-lg font-semibold text-sm clk">✓ Já escaneei / conectei</button>
+    <button onclick="openCanais()" class="w-full text-gray-400 text-xs py-2 clk mt-1">← voltar</button>`);
+}
+
+/* ═══ TEMPLATES WHATSAPP OFICIAL (HSM Meta) ═══ */
+let waTemplates=[
+  {id:'t1',nome:'reengajamento_evento',cat:'MARKETING',idioma:'pt_BR',status:'approved',corpo:'Oi {{1}}, ainda pensando no seu evento? 😊 Tenho datas abrindo no {{2}}. Posso segurar uma pra você sem compromisso?',botoes:['Quero saber mais','Agora não'],usos:0,motivo:''},
+  {id:'t2',nome:'confirmacao_degustacao',cat:'UTILITY',idioma:'pt_BR',status:'approved',corpo:'Sua degustação no Clube Carvão está confirmada para {{1}} às {{2}} 🍽️ Te esperamos!',botoes:['Confirmar presença','Reagendar'],usos:0,motivo:''},
+  {id:'t3',nome:'lembrete_visita',cat:'UTILITY',idioma:'pt_BR',status:'approved',corpo:'Olá {{1}}! Lembrete da sua visita ao espaço amanhã às {{2}}. Qualquer coisa, é só responder por aqui.',botoes:[],usos:0,motivo:''},
+  {id:'t4',nome:'pos_evento_nps',cat:'MARKETING',idioma:'pt_BR',status:'pending',corpo:'Oi {{1}}! Como foi seu evento conosco? 💛 Sua opinião vale muito — e quem indica ganha condição especial na próxima.',botoes:['Avaliar','Indicar alguém'],usos:0,motivo:''},
+  {id:'t5',nome:'promo_data_remanescente',cat:'MARKETING',idioma:'pt_BR',status:'rejected',corpo:'{{1}}, ÚLTIMA CHANCE!!! Data com 50% OFF só HOJE, corre!!!',botoes:[],usos:0,motivo:'Linguagem promocional agressiva / excesso de pontuação. Meta exige tom equilibrado.'},
+];
+const tplStatusCor={approved:'bg-green-100 text-green-700',pending:'bg-amber-100 text-amber-700',rejected:'bg-red-100 text-red-600'};
+const tplStatusLabel={approved:'✓ Aprovado',pending:'⏳ Em análise',rejected:'✕ Rejeitado'};
+const tplCatCor={MARKETING:'bg-purple-100 text-purple-700',UTILITY:'bg-blue-100 text-blue-700',AUTHENTICATION:'bg-gray-100 text-gray-600'};
+function openTemplates(){
+  const body=`
+    <div class="card p-4 mb-4 bg-cyan-50/60 border-l-4 border-cyan-400 text-sm text-gray-600">
+      <b>✅ Templates do WhatsApp Oficial (Meta).</b> Mensagens pré-aprovadas pela Meta — a única forma de <b>iniciar conversa</b> ou responder <b>fora da janela de 24h</b> sem ser bloqueado. A aprovação leva de minutos a 24h.
+    </div>
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex gap-2 text-xs">
+        <span class="chip ${tplStatusCor.approved}">${waTemplates.filter(t=>t.status==='approved').length} aprovados</span>
+        <span class="chip ${tplStatusCor.pending}">${waTemplates.filter(t=>t.status==='pending').length} em análise</span>
+        <span class="chip ${tplStatusCor.rejected}">${waTemplates.filter(t=>t.status==='rejected').length} rejeitados</span>
+      </div>
+      <button onclick="novoTemplate()" class="text-xs bg-brand-500 text-white px-3 py-1.5 rounded-lg clk font-semibold">+ Novo template</button>
+    </div>
+    <div class="space-y-2">${waTemplates.map((t,i)=>`
+      <div class="card p-3">
+        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+          <span class="font-mono text-sm font-semibold">${t.nome}</span>
+          <span class="chip ${tplCatCor[t.cat]} text-[10px]">${t.cat}</span>
+          <span class="chip bg-gray-100 text-gray-500 text-[10px]">${t.idioma}</span>
+          <span class="chip ${tplStatusCor[t.status]} ml-auto">${tplStatusLabel[t.status]}</span>
+        </div>
+        <div class="text-sm text-gray-600 bg-gray-50 rounded-lg p-2.5 leading-relaxed" contenteditable="${t.status!=='approved'}" onblur="waTemplates[${i}].corpo=this.textContent">${t.corpo}</div>
+        ${t.botoes.length?`<div class="flex gap-1.5 mt-2">${t.botoes.map(b=>`<span class="chip bg-white border border-gray-200 text-brand-600">${b}</span>`).join('')}</div>`:''}
+        ${t.status==='rejected'?`<div class="text-[11px] text-red-500 mt-2">⚠️ ${t.motivo}</div>`:''}
+        <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-50">
+          <span class="text-[11px] text-gray-400">${t.usos>0?t.usos+'× enviado':'nunca enviado'}</span>
+          <div class="flex gap-1">
+            ${t.status==='approved'?`<button onclick="toast('Disponível nos fluxos e follow-up ✓')" class="text-[11px] text-green-600 px-2 py-1 clk">usar no fluxo</button>`:''}
+            ${t.status==='rejected'?`<button onclick="waTemplates[${i}].status='pending';waTemplates[${i}].motivo='';openTemplates();toast('Reenviado para análise da Meta')" class="text-[11px] bg-brand-50 text-brand-600 px-2 py-1 rounded clk font-semibold">corrigir e reenviar</button>`:''}
+            <button onclick="if(confirm('Remover template ${t.nome}?')){waTemplates.splice(${i},1);openTemplates();toast('Removido')}" class="text-gray-300 hover:text-red-400 px-1 clk">🗑</button>
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+  openDrawer('✅ Templates WhatsApp Oficial',body);
+}
+function novoTemplate(){
+  openDrawer('✅ Novo template',`
+    <p class="text-sm text-gray-500 mb-4">Crie e envie para aprovação da Meta. Use <b>{{1}}</b>, <b>{{2}}</b> para variáveis (nome, data…).</p>
+    <div class="space-y-3">
+      <div class="field-wrap"><div class="field-label">Nome (sem espaços, minúsculo)</div><input id="ntNome" class="w-full text-sm bg-transparent outline-none font-mono" placeholder="ex: lembrete_pagamento"></div>
+      <div class="field-wrap"><div class="field-label">Categoria (Meta)</div><select id="ntCat" class="w-full text-sm bg-transparent outline-none"><option value="UTILITY">UTILITY — confirmação, lembrete, atualização (aprova rápido)</option><option value="MARKETING">MARKETING — promoção, reengajamento (mais critério)</option><option value="AUTHENTICATION">AUTHENTICATION — código/OTP</option></select></div>
+      <div class="field-wrap"><div class="field-label">Idioma</div><select class="w-full text-sm bg-transparent outline-none"><option>pt_BR — Português (Brasil)</option><option>en_US</option><option>es</option></select></div>
+      <div class="field-wrap"><div class="field-label">Corpo da mensagem</div><textarea id="ntCorpo" rows="4" class="w-full text-sm bg-transparent outline-none resize-none" placeholder="Oi {{1}}, ...">Oi {{1}}, </textarea></div>
+    </div>
+    <div class="card p-3 mt-3 bg-amber-50/60 border-l-4 border-amber-400 text-[11px] text-gray-500">Regras Meta: sem excesso de CAPS/!!!, sem promessa enganosa, variáveis numeradas, sem URL encurtada. Reprovado = ajusta e reenvia.</div>
+    <button onclick="const n=document.getElementById('ntNome').value.trim()||'novo_template';waTemplates.push({id:'t'+Date.now(),nome:n,cat:document.getElementById('ntCat').value,idioma:'pt_BR',status:'pending',corpo:document.getElementById('ntCorpo').value,botoes:[],usos:0,motivo:''});toast('Enviado para aprovação da Meta ⏳');openTemplates();" class="w-full bg-brand-500 text-white py-2.5 rounded-lg font-semibold text-sm clk mt-4">Enviar para aprovação</button>
+    <button onclick="openTemplates()" class="w-full text-gray-400 text-xs py-2 clk mt-1">← voltar</button>`);
+}
+
+/* ═══ INBOX ═══ */
+let curConv=0;
+const convs=[];
+function renderInboxList(){if(!convs.length){document.getElementById('inboxList').innerHTML='<div class="p-8 text-center text-sm text-gray-400"><div class="text-4xl mb-2">💬</div>Nenhuma conversa ainda.<br>Conecte um canal e as conversas chegam aqui.</div>';return;}document.getElementById('inboxList').innerHTML=convs.map((c,i)=>{const l=leads.find(x=>x.nome===c.nome);const r=l?nextContactRec(l.lastContactH):{icon:'',label:''};return`<div onclick="selConv(${i})" class="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 clk ${i===curConv?'bg-brand-50':''}"><div class="flex items-center justify-between"><div class="flex items-center gap-2"><span class="font-semibold text-sm">${c.nome}</span>${byBadge(c.src)}</div><span class="text-[11px] text-gray-400">${c.t}</span></div><div class="flex items-center justify-between mt-1"><span class="text-xs text-gray-500 truncate max-w-[150px]">${c.last}</span>${c.ia?'<span class="chip bg-green-100 text-green-700">IA</span>':'<span class="chip bg-orange-100 text-orange-700">👤</span>'}</div>${l?`<div class="text-[10px] mt-0.5 ${lcClass[r.cor]||'text-gray-400'}">${r.icon} ${r.label}</div>`:''}</div>`;}).join('');}
+function selConv(i){curConv=i;renderInboxList();renderChat();renderAIPanel();}
+function renderChat(){const c=convs[curConv];if(!c){document.getElementById('chatName').textContent='Selecione uma conversa';document.getElementById('chatSub').textContent='';document.getElementById('chat').innerHTML='<div class="flex items-center justify-center h-full text-sm text-gray-400">Nenhuma conversa ativa.</div>';return;}document.getElementById('chatName').textContent=c.nome;document.getElementById('chatSub').textContent=c.sub;
+ document.getElementById('chat').innerHTML=`<div class="flex"><div class="bg-white rounded-2xl rounded-tl-sm px-4 py-2 text-sm shadow-sm max-w-[75%]">Oi! Vi o trabalho de vocês 😍 quanto fica pra ${leads.find(l=>l.nome===c.nome)?.conv||'X'} convidados?</div></div><div class="flex justify-end"><div class="bg-brand-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 text-sm max-w-[75%]">Oi! Sou a Sofia, assistente do Clube Carvão 💛 Te mando 3 opções. Qual a data do casamento?</div></div><div class="text-center"><span class="chip bg-gray-200 text-gray-500">🤖 IA respondeu em 41s</span></div><div class="flex"><div class="bg-white rounded-2xl rounded-tl-sm px-4 py-2 text-sm shadow-sm max-w-[75%]">${leads.find(l=>l.nome===c.nome)?.ev||'em breve'}!</div></div><div class="flex justify-end"><div class="bg-brand-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 text-sm max-w-[75%]">Perfeito 🗓️ Enviei 3 orçamentos no e-mail. Posso agendar uma call com o Guto?</div></div>`;}
+function renderAIPanel(){const c=convs[curConv];const l=c?(leads.find(x=>x.nome===c.nome)||leads[0]):null;if(!l){document.getElementById('aiPanel').innerHTML='<div class="p-8 text-center text-sm text-gray-400">O painel da IA aparece quando há uma conversa selecionada.</div>';return;}
+ document.getElementById('aiPanel').innerHTML=`<div class="p-4"><div class="flex items-center gap-2 mb-3"><span class="text-sm font-bold">🧠 Painel da IA</span><span class="chip bg-green-100 text-green-700 ml-auto">score ${l.score}</span></div>
+  <div class="bg-brand-500 text-white rounded-xl p-3 mb-3"><div class="text-[11px] opacity-80">PRÓXIMA AÇÃO</div><div class="text-sm font-semibold mt-0.5">${l.rec}</div><button onclick="fazerAgora('${l.nome}')" class="mt-2 bg-white/20 text-xs px-2.5 py-1 rounded-md clk">Fazer agora →</button></div>
+  ${contactBlock(l)}
+  <div class="card p-3 mb-3"><div class="flex items-center justify-between mb-2"><div class="text-xs font-semibold text-gray-500">✅ Para fazer <span class="text-gray-300">(${l.todos.filter(t=>t.done).length}/${l.todos.length})</span></div></div>
+   <div class="space-y-0.5">${l.todos.map((t,i)=>`<label class="flex items-center gap-2 text-sm py-1 clk"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTodo('${l.nome}',${i})" class="accent-brand-500"><span class="${t.done?'line-through text-gray-400':''}">${t.txt}</span></label>`).join('')}</div>
+   <div class="flex gap-2 mt-1"><input id="newTodo_${l.nome.replace(/\s/g,'_')}" placeholder="+ nova tarefa" onkeydown="if(event.key==='Enter')addTodo('${l.nome}',this.value)" class="flex-1 text-xs border-b border-gray-100 outline-none focus:border-brand-300 py-1 bg-transparent"></div></div>
+  <div class="card p-3 mb-3 border-l-4 border-amber-400"><div class="text-xs font-semibold text-gray-500 mb-1">📌 Pendências</div><div class="text-sm text-amber-700">${l.pend}</div></div>
+  <div class="card p-3"><div class="text-xs font-semibold text-gray-500 mb-2">📅 Observações</div>
+   <div class="space-y-3 text-sm">
+    <div class="border-l-2 border-brand-400 pl-3"><div class="text-[11px] text-gray-400">Hoje</div>${l.obs}</div>
+    <div class="border-l-2 border-gray-200 pl-3"><div class="text-[11px] text-gray-400">Ontem</div>Primeiro contato. IA respondeu em ${l.score>70?'41s':'1min'}.</div>
+   </div></div>
+  <div class="card p-3 mt-3"><div class="flex items-center justify-between mb-2"><div class="text-xs font-semibold text-gray-500">🖊 Anotação pessoal</div><span class="text-[10px] text-gray-400">só você vê</span></div>
+   <textarea id="noteArea_${l.nome.replace(/\s/g,'_')}" rows="3" placeholder="Escreva algo…" onblur="saveNote('${l.nome}',this.value)" class="w-full text-sm text-gray-700 resize-none outline-none bg-transparent placeholder-gray-300 leading-relaxed">${l.nota||''}</textarea></div>
+  <button onclick="drillLead('${l.nome}','historico')" class="w-full mt-3 border border-brand-300 text-brand-600 py-2 rounded-lg text-xs font-semibold clk">🕐 Ver histórico completo</button>
+ </div>`;}
+
+/* ═══ FOLLOW-UP ═══ */
+const fus=[];
+const icon={'e-mail':'✉️ e-mail','sms':'📱 SMS','wa-tpl':'✅ WhatsApp oficial','ligação':'📞 ligação'};
+const stColor={'enviado':'bg-green-100 text-green-700','sem resposta':'bg-gray-100 text-gray-400','agora':'bg-amber-100 text-amber-700 ring-1 ring-amber-300','pendente':'bg-gray-50 text-gray-400 border border-dashed border-gray-300'};
+document.getElementById('followupList').innerHTML=fus.map(f=>`<div class="card p-5 clk" onclick="drillLead('${f.n}')"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-2"><span>${src[f.src]}</span><span class="font-semibold">${f.n}</span><span class="text-xs text-gray-400">evento ${f.ev}</span></div><div class="flex gap-2" onclick="event.stopPropagation()"><button onclick="toast('Reprogramado')" class="text-xs border border-gray-300 px-2 py-1 rounded-md clk">Reprogramar</button><button onclick="toast('Respondido')" class="text-xs border border-gray-300 px-2 py-1 rounded-md clk">Marcar respondido</button></div></div><div class="flex items-center gap-1 overflow-x-auto">${f.steps.map((s,i)=>`<div class="flex flex-col items-center min-w-[90px]"><div class="text-[10px] font-bold mb-1 ${s.o==='ai'?'text-gray-400':'text-orange-500'}">${s.o==='ai'?'🤖 IA':'👤 HUMANO'}</div><div class="chip ${stColor[s.s]} flex items-center gap-1">${icon[s.c]}</div><div class="text-[10px] text-gray-400 mt-1">${s.t} · ${s.s}</div></div>${i<f.steps.length-1?'<div class="text-gray-300">→</div>':''}`).join('')}</div></div>`).join('');
+
+/* ═══ VOZ IA ═══ */
+const vozCalls=[];
+document.getElementById('vozCallList').innerHTML=vozCalls.map(c=>`<div class="card p-4 clk hover:shadow-md" onclick="${c.score?`openScoreDrawer('${c.nome}',${c.score})`:`toast('Sem score disponível')`}">
+ <div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center">📞</div><div><div class="font-semibold text-sm">${c.nome}</div><div class="text-xs text-gray-400">${c.hora} · ${c.dur} · ${c.canal}</div></div></div>
+  <div class="flex items-center gap-2">${c.score?`<div class="text-right"><div class="font-extrabold text-lg ${c.score>=90?'text-green-600':'text-amber-600'}">${c.score}%</div><div class="text-[10px] text-gray-400">score IA</div></div>`:`<span class="chip bg-gray-100 text-gray-500">${c.status}</span>`}</div></div>
+ <div class="mt-2 text-xs text-gray-500">${c.resultado}</div>
+</div>`).join('');
+
+function openScoreDrawer(nome,score){
+  const cs={total:score,pitch:score+6>100?95:score+6,objecoes:score-2,tecnicas:score+5>100?94:score+5,conversao:'+23%',insights:['Abertura forte com storytelling dos pratos','Objeção de preço não rebatida com ROI emocional','Fechamento tentativo feito','Mencionar sustentabilidade + exclusividade']};
+  openDrawer(`📊 Score da Call — ${nome}`,`<div class="flex items-center gap-4 mb-4">${scoreRingSVG(score)}<div><div class="font-bold">${nome}</div><div class="text-xs text-gray-400">Call analisada pela IA</div></div></div>${scoreBarsHTML(cs)}<div class="mt-4 bg-gray-900 rounded-xl p-4 text-white"><div class="font-semibold text-sm mb-2">💡 Insights</div><div class="space-y-1">${cs.insights.map((ins,i)=>`<div class="text-[11px] ${i===1?'text-amber-300':i===3?'text-blue-300':'text-gray-300'}">${i===1?'⚠️':'✅'} ${ins}</div>`).join('')}</div></div><div class="mt-4 flex gap-2"><button onclick="toast('Feedback enviado p/ Guto')" class="flex-1 bg-brand-500 text-white py-2 rounded-lg text-sm font-semibold clk">📤 Enviar feedback ao closer</button></div>`);}
+
+/* render score demo */
+document.getElementById('scoreRing').innerHTML=scoreRingSVG(89);
+document.getElementById('scoreBars').innerHTML=scoreBarsHTML({pitch:95,objecoes:87,tecnicas:94,conversao:'+23%'});
+
+/* ═══ CAMPANHAS ═══ */
+const campanhas=[];
+const campSt={Enviada:'bg-green-100 text-green-700','Em andamento':'bg-brand-100 text-brand-700',Agendada:'bg-amber-100 text-amber-700',Rascunho:'bg-gray-100 text-gray-500'};
+document.getElementById('campanhaList').innerHTML=campanhas.map(c=>`<div class="card p-5 clk hover:shadow-md" onclick="toast('${c.nome} — detalhes')">
+ <div class="flex items-center justify-between mb-3"><div class="flex items-center gap-3"><span class="text-xl">${c.tipo.split(' ')[0]}</span><div><div class="font-semibold">${c.nome}</div><div class="text-xs text-gray-400">${c.canal} · ${c.data}</div></div></div><div class="flex items-center gap-2"><span class="chip ${campSt[c.status]||'bg-gray-100'}">${c.status}</span></div></div>
+ <div class="grid grid-cols-4 gap-3 text-center text-sm">
+  <div class="bg-gray-50 rounded-lg p-2"><div class="text-[10px] text-gray-400">Enviados</div><div class="font-bold">${c.enviados||'—'}</div></div>
+  <div class="bg-gray-50 rounded-lg p-2"><div class="text-[10px] text-gray-400">Abertos</div><div class="font-bold ${c.abertos?'text-brand-600':''}">${c.enviados?Math.round(c.abertos/c.enviados*100)+'%':'—'}</div></div>
+  <div class="bg-gray-50 rounded-lg p-2"><div class="text-[10px] text-gray-400">Cliques</div><div class="font-bold ${c.cliques?'text-green-600':''}">${c.enviados?Math.round(c.cliques/c.enviados*100)+'%':'—'}</div></div>
+  <div class="bg-gray-50 rounded-lg p-2"><div class="text-[10px] text-gray-400">Leads</div><div class="font-bold text-emerald-600">${c.leads||'—'}</div></div></div>
+ ${c.enviados?`<div class="camp-bar mt-3"><div class="camp-bar-fill bg-brand-500" style="width:${Math.round(c.abertos/c.enviados*100)}%"></div></div>`:''}</div>`).join('');
+
+document.getElementById('campTemplates').innerHTML=[
+ {nome:'Pré-temporada casamentos',tipo:'✉️ E-mail',desc:'Apresentação da temporada com call-to-action para degustação'},
+ {nome:'Reativação base fria',tipo:'📱 SMS / WhatsApp',desc:'Mensagem curta para leads que pararam de responder há >30 dias'},
+ {nome:'Parabéns 1 mês pós-evento',tipo:'✉️ E-mail',desc:'E-mail de relacionamento pedindo review + indicação'},
+].map(t=>`<div class="card p-4 clk hover:shadow-md" onclick="openCampanha()"><div class="text-lg mb-1">${t.tipo.split(' ')[0]}</div><div class="font-semibold text-sm">${t.nome}</div><div class="text-xs text-gray-400 mt-1">${t.desc}</div><button class="mt-2 text-xs bg-brand-50 text-brand-600 px-2.5 py-1 rounded-md clk font-semibold">Usar template →</button></div>`).join('');
+
+function openCampanha(){openDrawer('Nova campanha',`<div class="space-y-3 text-sm">
+ <div><label class="text-xs text-gray-500">Nome da campanha</label><input class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="Ex: Pré-temporada set/out 2025"></div>
+ <div><label class="text-xs text-gray-500">Canal</label><select class="w-full border rounded-lg px-3 py-2 mt-1"><option>✉️ E-mail</option><option>🟢 WhatsApp</option><option>📱 SMS</option><option>🎙️ Voz IA (fase 3)</option></select></div>
+ <div><label class="text-xs text-gray-500">Público-alvo</label><select class="w-full border rounded-lg px-3 py-2 mt-1"><option>Todos leads</option><option>Leads sem resposta >7d</option><option>Qualificados sem call</option><option>Clientes pós-venda</option><option>Base fria (>30d)</option></select></div>
+ <div><label class="text-xs text-gray-500">Assunto / Mensagem</label><textarea class="w-full border rounded-lg px-3 py-2 mt-1 h-24" placeholder="Conteúdo da campanha..."></textarea></div>
+ <div><label class="text-xs text-gray-500">Agendamento</label><input type="datetime-local" class="w-full border rounded-lg px-3 py-2 mt-1"></div>
+ <div class="card p-3 bg-blue-50 border-blue-200 text-xs text-blue-700">📧 E-mails enviados pelo seu provedor de e-mail marketing integrado, com baixo custo por envio.</div>
+ <button onclick="toast('Campanha criada ✓');closeDrawer()" class="w-full bg-brand-500 text-white py-2.5 rounded-lg font-semibold mt-2 clk">Criar campanha</button></div>`);}
+
+/* ═══ PENDÊNCIAS ═══ */
+const pend=[];
+const sevC={'Urgente':'bg-red-100 text-red-600','Semana':'bg-amber-100 text-amber-700','Aguardando':'bg-gray-100 text-gray-500'};
+/* pendList renderizado em renderPendGroups() abaixo */
+
+/* ═══ PROCESSO ═══ */
+const flow=[
+ {t:'Lead chega',by:'multi-canal',d:'IG/Google/WA/Ads/📞Voz → inbox',c:'#94a3b8',i:'📥'},
+ {t:'SDR IA atende',by:'🤖 IA',d:'Responde <1min, qualifica',c:'#3b6ef5',i:'🤖'},
+ {t:'Qualificado',by:'🤖 IA',d:'Envia 3 orçamentos. Score sobe.',c:'#8b5cf6',i:'⭐'},
+ {t:'Call (handoff)',by:'🤖→👤',d:'IA agenda. Bola pro Guto.',c:'#f59e0b',i:'🤝'},
+ {t:'Degustação',by:'👤 Guto',d:'Storytelling dos pratos.',c:'#ec4899',i:'🍽️'},
+ {t:'Fechado',by:'👤 Guto',d:'Venda + onboarding pós',c:'#10b981',i:'✅'},
+];
+document.getElementById('processFlow').innerHTML=flow.map((f,i)=>`<div class="flex items-center"><div class="rounded-xl p-4 w-40 text-white" style="background:${f.c}"><div class="text-2xl">${f.i}</div><div class="font-bold text-sm mt-1">${f.t}</div><div class="text-[11px] opacity-90 mt-0.5">${f.by}</div><div class="text-[11px] opacity-80 mt-2 leading-snug">${f.d}</div></div>${i<flow.length-1?'<div class="text-gray-300 text-xl px-1">→</div>':''}</div>`).join('');
+document.getElementById('processRules').innerHTML=[['Entrada → SDR IA','Todo lead novo → IA responde na hora (voz, chat ou e-mail).'],['SDR → Qualificado','IA tem data + convidados + orçamento confirmados.'],['Qualificado → Call','Lead aceita → IA agenda na agenda do Guto (handoff).'],['Call → Degustação','Guto validou fit na call → marca degustação presencial.'],['Degustação → Fechado','Cliente aprova → contrato + onboarding pós-venda.'],['Sem resposta 24h','IA tentou msg+e-mail+ligação → vira tarefa do humano.']].map(r=>`<div class="card p-3"><div class="font-semibold text-xs text-brand-700">${r[0]}</div><div class="text-gray-600 text-xs mt-1">${r[1]}</div></div>`).join('');
+
+/* ═══ SEARCH ═══ */
+function handleSearch(q){
+  if(!q||q.length<2){toast('');return;}
+  const ql=q.toLowerCase();
+  // busca por etiqueta (nome da tag)
+  const tagHit=tagDefs.find(t=>t.nome.toLowerCase().includes(ql)||t.id.toLowerCase().includes(ql));
+  const r=leads.filter(l=>
+    l.nome.toLowerCase().includes(ql)||
+    l.fone.includes(q)||
+    (l.obs&&l.obs.toLowerCase().includes(ql))||
+    l.tags.some(id=>tagDef(id).nome.toLowerCase().includes(ql))
+  );
+  if(r.length===0){toast('Nada encontrado para "'+q+'"');return;}
+  if(r.length===1){drillLead(r[0].nome);return;}
+  listDrawer(tagHit?`🏷️ Etiqueta "${tagHit.nome}" — ${r.length} leads`:'🔍 Resultados para "'+q+'"',r);
+}
+
+/* ═══ METRIC FILTERS ═══ */
+const metricData={
+  vendas:{hoje:{qtd:0,dia:'R$ 0',mes:'R$ 0',ticket:'R$ 0',var:'—'},'7d':{qtd:0,dia:'R$ 0',mes:'R$ 0',ticket:'R$ 0',var:'—'},mes:{qtd:0,dia:'R$ 0',mes:'R$ 0',ticket:'R$ 0',var:'—'}},
+  atend:{hoje:{total:0,ia:'0 IA / 0 humano',tmr:'—',res:'—'},'7d':{total:0,ia:'0 IA / 0 humano',tmr:'—',res:'—'},mes:{total:0,ia:'0 IA / 0 humano',tmr:'—',res:'—'}}
+};
+function setMetricFilter(type,period,el){
+  el.closest('.inline-flex').querySelectorAll('.mf-btn').forEach(b=>{b.classList.remove('active','text-gray-900');b.classList.add('text-gray-500');});
+  el.classList.add('active','text-gray-900');el.classList.remove('text-gray-500');
+  if(type==='vendas'){
+    const d=metricData.vendas[period];
+    document.getElementById('mVendasQtd').textContent=d.qtd;
+    document.getElementById('mVendasDia').textContent=d.dia;
+    document.getElementById('mVendasMes').textContent=d.mes;
+    document.getElementById('mVendasTicket').textContent=d.ticket;
+    document.getElementById('mVendasDiaVar').textContent=d.var;
+  } else {
+    const d=metricData.atend[period];
+    document.getElementById('mAtendTotal').textContent=d.total;
+    document.getElementById('mAtendIA').textContent=d.ia;
+    document.getElementById('mAtendTMR').textContent=d.tmr;
+    document.getElementById('mAtendRes').textContent=d.res;
+  }
+}
+
+/* ═══ PENDÊNCIAS (com grupos) ═══ */
+(function renderPendGroups(){
+  const groups=[
+    {key:'Urgente',label:'🔴 Urgente — hoje',cls:'text-red-600',items:pend.filter(x=>x.sev==='Urgente')},
+    {key:'Semana',label:'🟡 Esta semana',cls:'text-amber-700',items:pend.filter(x=>x.sev==='Semana')},
+    {key:'Aguardando',label:'⏸ Aguardando',cls:'text-gray-500',items:pend.filter(x=>x.sev==='Aguardando')},
+  ];
+  document.getElementById('pendList').innerHTML=groups.filter(g=>g.items.length>0).map(g=>`
+    <div class="pend-group-hdr ${g.cls}">${g.label} <span class="font-normal">(${g.items.length})</span></div>
+    ${g.items.map(x=>`<div class="flex items-center gap-3 p-4 hover:bg-gray-50 clk" onclick="drillLead('${x.lead}')">
+      <input type="checkbox" class="accent-brand-500" onclick="event.stopPropagation();toast('Concluído')">
+      <div class="flex-1"><div class="font-medium text-sm">${x.p}</div><div class="text-xs text-gray-400">${x.q} · ${x.lead}</div></div>
+      <span class="chip bg-gray-100">${x.who}</span>
+      <span class="chip ${sevC[x.sev]}">${x.sev}</span>
+    </div>`).join('')}`).join('');
+})();
+
+/* atualiza contadores KPI em risco com dado real */
+(function(){
+  const n=leads.filter(l=>nextContactRec(l.lastContactH).urgencia>=3).length;
+  ['gargRisco','kpiRisco'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=n;});
+})();
+
+/* ═══ CHARTS ═══ */
+new Chart(document.getElementById('funnelChart'),{type:'bar',data:{labels:stages.map(s=>s.n),datasets:[{data:[37,30,21,9,6,3],backgroundColor:stages.map(s=>s.c),borderRadius:6}]},options:{indexAxis:'y',onClick:(e,el)=>{if(el.length)drillStage(el[0].index)},plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{display:false}}}}});
+new Chart(document.getElementById('iaChart'),{type:'doughnut',data:{labels:['🤖 IA','👤 Pessoa'],datasets:[{data:[68,32],backgroundColor:['#3b6ef5','#f59e0b']}]},options:{cutout:'68%',onClick:(e,el)=>{if(el.length)el[0].index===0?listDrawer('Atendidos pela IA',leads.filter(l=>l.owner==='🤖')):listDrawer('Atendidos por Pessoa',leads.filter(l=>l.owner==='👤'))},plugins:{legend:{position:'bottom'}}}});
+new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],datasets:[{label:'Leads',data:[0,0,0,0,0,0,0],borderColor:'#3b6ef5',backgroundColor:'rgba(59,110,245,.08)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#3b6ef5'},{label:'Vendas',data:[0,0,0,0,0,0,0],borderColor:'#10b981',backgroundColor:'transparent',tension:.4,fill:false,pointRadius:5,pointBackgroundColor:'#10b981',yAxisID:'y1'}]},options:{plugins:{legend:{position:'bottom'}},scales:{y:{grid:{color:'#f5f5f5'},beginAtZero:true,title:{display:true,text:'Leads',font:{size:11}}},y1:{position:'right',grid:{display:false},beginAtZero:true,max:4,title:{display:true,text:'Vendas',font:{size:11}}}}}});
+
+/* ═══ CÉREBRO — gráfico de classificação ═══ */
+const classifData=[
+  {label:'Quente (71–100)',qtd:0,cor:'#10b981'},
+  {label:'Morno (41–70)',qtd:0,cor:'#f59e0b'},
+  {label:'Frio (0–40)',qtd:0,cor:'#ef4444'},
+];
+window.classifChartInst=new Chart(document.getElementById('classifChart'),{type:'doughnut',data:{labels:classifData.map(c=>c.label),datasets:[{data:classifData.map(c=>c.qtd),backgroundColor:classifData.map(c=>c.cor),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'62%'}});
+document.getElementById('classifLegend').innerHTML=classifData.map(c=>`<div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full" style="background:${c.cor}"></span>${c.label}</span><span class="font-bold">${c.qtd} leads</span></div>`).join('');
+
+/* ═══ MONITOR IA ═══ */
+const automacoes=[
+  {nome:'Resposta imediata (< 1min)',trigger:'Novo lead chega em qualquer canal',acao:'Sofia IA responde com boas-vindas',ultima:'—',total:0,ok:0,status:'on'},
+  {nome:'Qualificação automática',trigger:'Lead responde à 1ª mensagem',acao:'IA pergunta data, convidados, orçamento',ultima:'—',total:0,ok:0,status:'on'},
+  {nome:'Envio de orçamentos',trigger:'Lead qualificado (data + conv + budget)',acao:'Envia 3 faixas de orçamento por e-mail',ultima:'—',total:0,ok:0,status:'on'},
+  {nome:'Agendamento de call',trigger:'Lead aceita orçamento ou pede contato humano',acao:'IA agenda horário na agenda do Guto',ultima:'—',total:0,ok:0,status:'on'},
+  {nome:'Follow-up T+4h',trigger:'Lead não responde após 4h',acao:'E-mail de acompanhamento',ultima:'—',total:0,ok:0,status:'on'},
+  {nome:'Follow-up T+12h',trigger:'Lead não responde após 12h',acao:'Ligação via Voz IA (tentativa)',ultima:'—',total:0,ok:0,status:'on'},
+  {nome:'Handoff humano',trigger:'Lead sem resposta >24h ou pediu humano',acao:'Cria tarefa para Guto com contexto completo',ultima:'—',total:0,ok:0,status:'on'},
+  {nome:'NPS pós-venda',trigger:'Evento realizado (D+7)',acao:'IA envia pesquisa de satisfação + pede indicação',ultima:'—',total:0,ok:0,status:'on'},
+];
+document.getElementById('autoList').innerHTML=automacoes.slice(0,5).map(a=>`
+  <div class="flex items-start gap-3">
+    <label class="relative inline-flex items-center cursor-pointer mt-0.5">
+      <input type="checkbox" ${a.status==='on'?'checked':''} class="sr-only peer" onchange="toast(this.checked?'Automação ativada':'Automação pausada')">
+      <div class="w-9 h-5 bg-gray-200 peer-checked:bg-green-500 rounded-full peer after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+    </label>
+    <div class="flex-1 min-w-0">
+      <div class="text-xs font-semibold text-gray-800 truncate">${a.nome}</div>
+      <div class="text-[10px] text-gray-400 mt-0.5">Última: ${a.ultima} · ${a.ok}/${a.total} OK</div>
+    </div>
+    <span class="text-[10px] font-bold ${a.ok===a.total?'text-green-600':'text-amber-500'} shrink-0">${Math.round(a.ok/a.total*100)}%</span>
+  </div>`).join('');
+
+const iaLogData=[];
+const logTipoCor={green:'text-green-700 bg-green-50',blue:'text-brand-700 bg-brand-50',purple:'text-purple-700 bg-purple-50',amber:'text-amber-700 bg-amber-50',red:'text-red-700 bg-red-50'};
+document.getElementById('iaLog').innerHTML=iaLogData.map(l=>`
+  <div class="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0 hover:bg-gray-50 rounded-lg px-2 clk" onclick="toast('${l.lead}: ${l.det}')">
+    <span class="text-[10px] text-gray-400 w-20 shrink-0 mt-0.5">${l.t}</span>
+    <span class="chip ${logTipoCor[l.tipo]} shrink-0 text-[10px]">${l.acao}</span>
+    <div class="flex-1 min-w-0"><span class="text-xs font-semibold">${l.lead}</span> <span class="text-xs text-gray-500">— ${l.det}</span></div>
+  </div>`).join('');
+
+const flowRulesData=[
+  {trigger:'Novo lead em qualquer canal',condicao:'Sempre',acao:'IA responde em < 1min',canal:'WhatsApp / IG / E-mail / Ads / Voz',delay:'Imediato',status:'on'},
+  {trigger:'Lead responde',condicao:'1ª resposta',acao:'Qualificar: data + convidados + orçamento',canal:'Mesmo canal da origem',delay:'Imediato',status:'on'},
+  {trigger:'Lead qualificado',condicao:'Data + conv + budget confirmados',acao:'Enviar 3 orçamentos por faixa',canal:'E-mail + WhatsApp (dentro de 24h)',delay:'Imediato',status:'on'},
+  {trigger:'Sem resposta',condicao:'4h após última mensagem',acao:'Follow-up amigável',canal:'E-mail automático',delay:'4h',status:'on'},
+  {trigger:'Sem resposta',condicao:'12h após T+0',acao:'Ligação IA (VoIP)',canal:'Voz IA',delay:'12h',status:'on'},
+  {trigger:'Sem resposta ou pediu humano',condicao:'> 24h ou "falar com alguém"',acao:'Criar tarefa para Guto + notificação WhatsApp',canal:'App + WhatsApp do closer',delay:'Imediato',status:'on'},
+  {trigger:'Evento realizado',condicao:'D+7 pós-evento',acao:'NPS + pedido de indicação',canal:'E-mail / SMS (ou WhatsApp template)',delay:'D+7',status:'on'},
+];
+document.getElementById('flowRules').innerHTML=flowRulesData.map((r,i)=>`
+  <div class="card p-3 hover:border-brand-200 transition-colors">
+    <div class="flex items-start gap-3">
+      <label class="relative inline-flex items-center cursor-pointer mt-1 shrink-0">
+        <input type="checkbox" ${r.status==='on'?'checked':''} class="sr-only peer" onchange="toast(this.checked?'Regra ativada':'Regra pausada')">
+        <div class="w-9 h-5 bg-gray-200 peer-checked:bg-green-500 rounded-full peer after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+      </label>
+      <div class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+        <div><div class="text-[10px] text-gray-400 mb-0.5">GATILHO</div><div class="font-semibold" contenteditable="true" onblur="toast('Regra atualizada ✓')">${r.trigger}</div></div>
+        <div><div class="text-[10px] text-gray-400 mb-0.5">CONDIÇÃO</div><div contenteditable="true" onblur="toast('Regra atualizada ✓')">${r.condicao}</div></div>
+        <div><div class="text-[10px] text-gray-400 mb-0.5">AÇÃO</div><div class="font-semibold text-brand-600" contenteditable="true" onblur="toast('Regra atualizada ✓')">${r.acao}</div></div>
+        <div class="flex items-start justify-between gap-2">
+          <div><div class="text-[10px] text-gray-400 mb-0.5">CANAL · DELAY</div><div>${r.canal} · <b>${r.delay}</b></div></div>
+          <button onclick="toast('Regra ${i+1} removida')" class="text-gray-300 hover:text-red-400 clk text-sm shrink-0">🗑</button>
+        </div>
+      </div>
+    </div>
+  </div>`).join('');
+
+/* ═══ CÉREBRO IA ═══ */
+function cerebroTab(id,el){
+  document.querySelectorAll('.cb-pane').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('cb-'+id).classList.remove('hidden');
+  document.querySelectorAll('.cb-tab').forEach(t=>{t.classList.remove('active');t.classList.add('text-gray-500');});
+  el.classList.add('active');el.classList.remove('text-gray-500');
+  if(id==='classif'&&window.classifChartInst)window.classifChartInst.resize();
+}
+
+// Prompt de atendimento (linguagem natural — o cliente edita)
+document.getElementById('promptArea').value=`Você é a Sofia, assistente de vendas do {empresa}.
+
+Seu objetivo: receber quem chega interessado em fazer um evento, responder rápido, descobrir o que a pessoa precisa e levar até o orçamento — sem parecer robô.
+
+Sempre faça, nesta ordem:
+1. Cumprimente pelo nome e agradeça o contato.
+2. Descubra 3 coisas: data do evento, número de convidados e tipo de comemoração.
+3. Com isso, apresente os {pacotes} que se encaixam e mande 3 faixas de orçamento.
+4. Ofereça agendar uma visita/degustação com {nome_vendedor}.
+
+Nunca:
+- Invente preço fora dos pacotes cadastrados.
+- Prometa data sem confirmar disponibilidade.
+- Insista mais de 2 vezes se a pessoa disser que está só pesquisando.
+
+Se a pessoa ficar em dúvida sobre preço, mostre o valor por convidado e o que está incluso — não dê desconto sozinha.`;
+
+// Quando passar pro humano
+const handoffRules=[
+  'Cliente pede falar com pessoa',
+  'Valor do evento acima de R$ 80k',
+  'Reclamação ou problema',
+  'Pergunta que a IA não sabe responder',
+];
+document.getElementById('handoffRules').innerHTML=handoffRules.map(h=>`<div class="flex items-center gap-2 text-sm text-gray-600"><span class="text-amber-500">→</span>${h}</div>`).join('');
+
+// Pacotes / produtos (editáveis)
+const produtos=[
+  {nome:'Essencial',faixa:'R$ 28k – 38k',conv:'até 120',cor:'#94a3b8',inclui:['Buffet completo','Equipe de garçons','Decoração básica','Bolo + doces']},
+  {nome:'Premium',faixa:'R$ 40k – 55k',conv:'120 – 200',cor:'#3b6ef5',inclui:['Tudo do Essencial','Open bar','Decoração temática','DJ + iluminação','Cerimonial']},
+  {nome:'Exclusivo',faixa:'R$ 58k – 90k',conv:'200+',cor:'#8b5cf6',inclui:['Tudo do Premium','Cardápio assinado','Estações gourmet','Valet + segurança','Coordenação dedicada']},
+];
+document.getElementById('produtosList').innerHTML=produtos.map((p,i)=>`
+  <div class="card p-5 hover:shadow-md transition-shadow">
+    <div class="flex items-center justify-between mb-2">
+      <div class="font-bold text-base" contenteditable="true" onblur="produtos[${i}].nome=this.textContent.trim();toast('Pacote salvo ✓')" style="color:${p.cor}">${p.nome}</div>
+      <button onclick="toast('Pacote removido')" class="text-gray-300 hover:text-red-400 clk text-sm">🗑</button>
+    </div>
+    <div class="text-2xl font-extrabold mb-1" contenteditable="true" onblur="produtos[${i}].faixa=this.textContent.trim();toast('Preço salvo ✓')">${p.faixa}</div>
+    <div class="text-xs text-gray-400 mb-3">👥 <span contenteditable="true" onblur="toast('OK')">${p.conv}</span> convidados</div>
+    <div class="text-[11px] font-semibold text-gray-400 uppercase mb-1">Inclui</div>
+    <ul class="space-y-1 text-sm text-gray-600">${p.inclui.map(x=>`<li class="flex items-start gap-1.5"><span class="text-green-500">✓</span><span contenteditable="true" onblur="toast('Item salvo ✓')">${x}</span></li>`).join('')}</ul>
+    <button onclick="toast('Item adicionado')" class="mt-3 text-xs text-brand-600 font-medium clk">+ adicionar item</button>
+  </div>`).join('');
+
+// Critérios de classificação (score)
+const scoreRules=[
+  {crit:'Tem data definida do evento',peso:25},
+  {crit:'Informou número de convidados',peso:20},
+  {crit:'Orçamento dentro da faixa dos pacotes',peso:25},
+  {crit:'Respondeu em menos de 1h',peso:10},
+  {crit:'Veio por indicação',peso:10},
+  {crit:'Pediu para agendar visita/degustação',peso:10},
+];
+document.getElementById('scoreRules').innerHTML=scoreRules.map((s,i)=>`
+  <div class="flex items-center gap-3">
+    <div class="flex-1 text-sm text-gray-700" contenteditable="true" onblur="toast('Critério salvo ✓')">${s.crit}</div>
+    <input type="range" min="0" max="40" value="${s.peso}" oninput="this.nextElementSibling.textContent='+'+this.value" onchange="scoreRules[${i}].peso=parseInt(this.value);toast('Peso ajustado')" class="w-24 accent-brand-500">
+    <span class="text-sm font-bold text-brand-600 w-8 text-right">+${s.peso}</span>
+  </div>`).join('');
+
+// Objeções mapeadas (dúvida → melhor resposta)
+const objecoes=[
+  {q:'Está caro / achei mais barato em outro lugar',cor:'red',resp:'Mostrar o valor POR convidado e tudo que está incluso. Comparar "maçã com maçã": muitos concorrentes cobram bar, decoração e equipe à parte. Reforçar exclusividade e depoimentos.',freq:'34% das objeções'},
+  {q:'A data que eu quero está disponível?',cor:'amber',resp:'Checar agenda na hora. Se ocupada, oferecer datas próximas + criar urgência: "essa data costuma fechar com 4 meses de antecedência".',freq:'21%'},
+  {q:'Preciso conversar com meu/minha parceiro(a)',cor:'blue',resp:'Respeitar, não pressionar. Oferecer mandar uma proposta visual bonita para os dois verem juntos + agendar visita para os dois conhecerem o espaço.',freq:'18%'},
+  {q:'Vou pesquisar mais e depois retorno',cor:'gray',resp:'Não insistir. Enviar 1 material de valor (fotos de eventos reais + depoimento) e marcar follow-up em 3 dias. Deixar porta aberta.',freq:'15%'},
+  {q:'Posso parcelar?',cor:'green',resp:'Sim — apresentar condições: entrada + parcelas até a data do evento. Reforçar que reserva a data garante o preço atual.',freq:'12%'},
+];
+const objCor={red:'border-red-300 bg-red-50',amber:'border-amber-300 bg-amber-50',blue:'border-blue-300 bg-blue-50',gray:'border-gray-200 bg-gray-50',green:'border-green-300 bg-green-50'};
+document.getElementById('objecoesList').innerHTML=objecoes.map((o,i)=>`
+  <div class="card p-0 overflow-hidden">
+    <div class="flex items-start gap-3 p-4 ${objCor[o.cor]} border-l-4">
+      <div class="flex-1">
+        <div class="text-xs font-semibold text-gray-400 uppercase mb-0.5">Quando o cliente diz · ${o.freq}</div>
+        <div class="font-semibold text-gray-800" contenteditable="true" onblur="toast('Objeção salva ✓')">"${o.q}"</div>
+      </div>
+      <button onclick="toast('Objeção removida')" class="text-gray-300 hover:text-red-400 clk">🗑</button>
+    </div>
+    <div class="p-4">
+      <div class="text-xs font-semibold text-green-600 uppercase mb-1">✅ A IA responde assim</div>
+      <div class="text-sm text-gray-600 leading-relaxed" contenteditable="true" onblur="toast('Resposta salva ✓')">${o.resp}</div>
+    </div>
+  </div>`).join('');
+
+// Por que NÃO fecharam
+const perdas=[];
+document.getElementById('perdasList').innerHTML=perdas.map(p=>`
+  <div>
+    <div class="flex justify-between text-sm mb-1"><span class="text-gray-700">${p.motivo}</span><span class="font-bold" style="color:${p.cor}">${p.pct}%</span></div>
+    <div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${p.pct}%;background:${p.cor}"></div></div>
+  </div>`).join('');
+
+// O que fez fechar
+const vitorias=[];
+document.getElementById('vitoriasList').innerHTML=vitorias.map(v=>`
+  <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+    <span class="text-sm text-gray-700 flex items-center gap-2"><span class="text-green-500">✓</span>${v.fator}</span>
+    <span class="chip bg-green-100 text-green-700 shrink-0">${v.impacto}</span>
+  </div>`).join('');
+
+// Aprendizado contínuo (insights aprovar/aplicar)
+const insights=[];
+document.getElementById('insightsList').innerHTML=insights.map((ins,i)=>`
+  <div class="flex items-start gap-3 p-3 bg-brand-50/40 rounded-xl">
+    <span class="text-brand-500 mt-0.5">💡</span>
+    <div class="flex-1">
+      <div class="text-sm text-gray-700">${ins.txt}</div>
+      <div class="flex gap-2 mt-2">
+        <button onclick="toast('Aplicado ✓ — a IA já está usando')" class="text-xs bg-brand-500 text-white px-3 py-1 rounded-lg clk font-semibold">✓ Aplicar — ${ins.acao}</button>
+        <button onclick="this.closest('.flex.items-start').style.opacity=0.4;toast('Ignorado')" class="text-xs text-gray-400 px-2 py-1 clk">descartar</button>
+      </div>
+    </div>
+  </div>`).join('');
+
+/* ═══ BIBLIOTECA DE MÍDIA ═══ */
+const midias=[
+  {tipo:'video',titulo:'Tour do espaço',cat:'Apresentação',meta:'1min12s',grad:'linear-gradient(135deg,#8b5cf6,#3b6ef5)',usos:0,iaAuto:true,quando:'Lead qualificado'},
+  {tipo:'video',titulo:'Festa real — casamento 200 pax',cat:'Prova social',meta:'48s',grad:'linear-gradient(135deg,#ec4899,#f59e0b)',usos:0,iaAuto:true,quando:'Objeção de preço'},
+  {tipo:'imagem',titulo:'Montagem buffet premium',cat:'Cardápio',meta:'JPG · 2.1MB',grad:'linear-gradient(135deg,#10b981,#3b6ef5)',usos:0,iaAuto:false},
+  {tipo:'imagem',titulo:'Salão decorado — clássico',cat:'Decoração',meta:'JPG · 1.8MB',grad:'linear-gradient(135deg,#f59e0b,#ec4899)',usos:0,iaAuto:false},
+  {tipo:'imagem',titulo:'Tabela de pacotes',cat:'Orçamento',meta:'PNG · 0.9MB',grad:'linear-gradient(135deg,#64748b,#1f2733)',usos:0,iaAuto:true,quando:'Pedido de orçamento'},
+  {tipo:'audio',titulo:'Boas-vindas da Sofia',cat:'Atendimento',meta:'0:18',grad:'linear-gradient(135deg,#3b6ef5,#8b5cf6)',usos:0,iaAuto:true,quando:'1º contato'},
+  {tipo:'audio',titulo:'Depoimento da noiva Letícia',cat:'Prova social',meta:'0:42',grad:'linear-gradient(135deg,#10b981,#84cc16)',usos:0,iaAuto:false},
+  {tipo:'imagem',titulo:'Antes/depois do salão',cat:'Decoração',meta:'JPG · 2.4MB',grad:'linear-gradient(135deg,#06b6d4,#3b6ef5)',usos:0,iaAuto:false},
+];
+const midiaIcon={video:'🎬',imagem:'🖼️',audio:'🎙️'};
+let mediaFilter='todos';
+function filterMedia(t,el){mediaFilter=t;el.closest('.inline-flex').querySelectorAll('.mf-btn').forEach(b=>{b.classList.remove('active','text-gray-900');b.classList.add('text-gray-500');});el.classList.add('active');el.classList.remove('text-gray-500');renderMedia();}
+function renderMedia(){
+  const arr=mediaFilter==='todos'?midias:midias.filter(m=>m.tipo===mediaFilter);
+  document.getElementById('mediaGrid').innerHTML=arr.map((m,i)=>`
+    <div class="card p-0 overflow-hidden clk hover:shadow-md group" onclick="toast('Pré-visualizar: ${m.titulo}')">
+      <div class="relative h-28 flex items-center justify-center" style="background:${m.grad}">
+        <span class="text-4xl opacity-90">${midiaIcon[m.tipo]}</span>
+        ${m.tipo==='video'?'<div class="absolute inset-0 flex items-center justify-center"><div class="w-10 h-10 rounded-full bg-white/30 backdrop-blur flex items-center justify-center text-white text-lg">▶</div></div>':''}
+        ${m.tipo==='audio'?'<div class="absolute bottom-2 left-3 right-3 flex items-end gap-0.5 h-5">'+[6,12,8,16,10,14,7,18,9,13,6,15,8].map(h=>`<div style="height:${h}px;width:3px;background:rgba(255,255,255,.7);border-radius:2px"></div>`).join('')+'</div>':''}
+        <span class="absolute top-2 right-2 chip bg-black/30 text-white text-[10px]">${m.meta}</span>
+        ${m.iaAuto?'<span class="absolute top-2 left-2 chip bg-white/90 text-brand-600 text-[10px]">🤖 IA usa</span>':''}
+      </div>
+      <div class="p-3">
+        <div class="font-semibold text-sm truncate">${m.titulo}</div>
+        <div class="text-[11px] text-gray-400 flex items-center justify-between mt-0.5"><span>${m.cat}</span><span>${m.usos}× usado</span></div>
+        ${m.iaAuto?`<div class="text-[10px] text-brand-500 mt-1">↳ envia em: ${m.quando}</div>`:''}
+        <div class="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
+          <button onclick="toast('Enviado no chat ativo ✓')" class="flex-1 text-[11px] bg-brand-50 text-brand-600 py-1 rounded-md clk font-semibold">Enviar</button>
+          <button onclick="toast('Editar mídia')" class="text-[11px] border border-gray-200 px-2 py-1 rounded-md clk">✎</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+renderMedia();
+
+const quickReplies=[
+  {atalho:'/orcamento',titulo:'Enviar 3 orçamentos',texto:'Preparei 3 opções pra você 💛 Olha a tabela com os pacotes e o que cada um inclui:',anexo:'Tabela de pacotes',tipo:'imagem',iaAuto:true},
+  {atalho:'/espaco',titulo:'Tour do espaço',texto:'Dá uma olhada no nosso espaço por dentro 😍',anexo:'Tour do espaço',tipo:'video',iaAuto:true},
+  {atalho:'/prova',titulo:'Prova social',texto:'Esse foi um casamento que fizemos recentemente — pra você ter uma ideia do resultado:',anexo:'Festa real — casamento 200 pax',tipo:'video',iaAuto:false},
+  {atalho:'/degustacao',titulo:'Convite degustação',texto:'Que tal vir provar o cardápio sem compromisso? Tenho agenda essa semana — qual dia fica melhor pra você?',anexo:null,tipo:null,iaAuto:false},
+  {atalho:'/boasvindas',titulo:'Áudio de boas-vindas',texto:'Oi! Que alegria seu contato 💛',anexo:'Boas-vindas da Sofia',tipo:'audio',iaAuto:true},
+];
+document.getElementById('quickReplies').innerHTML=quickReplies.map((q,i)=>`
+  <div class="card p-3 flex items-start gap-3 hover:border-brand-200">
+    <span class="chip bg-gray-900 text-white shrink-0 mt-0.5">${q.atalho}</span>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2"><span class="font-semibold text-sm" contenteditable="true" onblur="toast('Resposta salva ✓')">${q.titulo}</span>${q.iaAuto?'<span class="chip bg-brand-50 text-brand-600 text-[10px]">🤖 IA usa</span>':''}</div>
+      <div class="text-xs text-gray-500 mt-0.5" contenteditable="true" onblur="toast('Texto salvo ✓')">${q.texto}</div>
+      ${q.anexo?`<div class="text-[11px] text-brand-500 mt-1">📎 ${midiaIcon[q.tipo]} ${q.anexo}</div>`:''}
+    </div>
+    <div class="flex flex-col gap-1 shrink-0" onclick="event.stopPropagation()">
+      <button onclick="toast('Enviado ✓')" class="text-[11px] bg-brand-50 text-brand-600 px-2 py-1 rounded-md clk font-semibold">Usar</button>
+      <button onclick="toast('Removido')" class="text-[11px] text-gray-300 hover:text-red-400 clk">🗑</button>
+    </div>
+  </div>`).join('');
+
+// barra de respostas rápidas dentro do chat do Inbox
+function renderChatQuick(){
+  const bar=document.getElementById('chatQuick');if(!bar)return;
+  bar.innerHTML=quickReplies.slice(0,4).map(q=>`<button onclick="toast('Enviado: ${q.titulo}${q.anexo?' + '+q.anexo:''} ✓')" class="tag-filter shrink-0" style="font-size:11px;padding:4px 10px">${q.anexo?midiaIcon[q.tipo]+' ':''}${q.titulo}</button>`).join('')+
+    `<button onclick="show('cerebro');setTimeout(()=>{const t=[...document.querySelectorAll('.cb-tab')].find(x=>x.getAttribute('onclick').includes('biblioteca'));t&&t.click();},50)" class="tag-filter shrink-0" style="font-size:11px;padding:4px 10px;border-style:dashed;color:#64748b">+ biblioteca</button>`;
+}
+function openMediaPicker(){
+  const body=`<p class="text-sm text-gray-500 mb-4">Escolha uma mídia salva para enviar na conversa.</p>
+    <div class="grid grid-cols-2 gap-3">${midias.map(m=>`
+      <div class="card p-0 overflow-hidden clk hover:shadow-md" onclick="toast('Enviado: ${m.titulo} ✓');closeDrawer()">
+        <div class="h-20 flex items-center justify-center text-3xl" style="background:${m.grad}">${midiaIcon[m.tipo]}</div>
+        <div class="p-2"><div class="text-xs font-semibold truncate">${m.titulo}</div><div class="text-[10px] text-gray-400">${m.cat} · ${m.meta}</div></div>
+      </div>`).join('')}</div>`;
+  openDrawer('📎 Enviar mídia salva',body);
+}
+
+/* ═══ CONSTRUTOR DE FLUXOS (fiel ao Falacomigo React Flow) ═══ */
+const nodeTypes=[
+  {kind:'content',label:'Mensagem',icon:'💬',cor:'#3b6ef5',hint:'Envia texto. Dentro de 24h: qualquer canal. Proativo: e-mail/SMS.'},
+  {kind:'menu',label:'Pergunta',icon:'❓',cor:'#f59e0b',hint:'Pergunta e espera a resposta do cliente.'},
+  {kind:'action',label:'Ação',icon:'⚡',cor:'#10b981',hint:'Etiqueta, passar pro humano, mudar etapa, enviar mídia.'},
+  {kind:'channel',label:'Canal',icon:'📡',cor:'#06b6d4',hint:'Por onde enviar: e-mail, SMS, WhatsApp (24h) ou WhatsApp template oficial.'},
+  {kind:'cond',label:'Condição',icon:'🔀',cor:'#ef4444',hint:'Se resposta contém X → caminho A, senão → B.'},
+  {kind:'delay',label:'Espera',icon:'⏱️',cor:'#64748b',hint:'Aguarda: 5 min, 2 horas, 1 dia.'},
+  {kind:'end',label:'Fim',icon:'🏁',cor:'#334155',hint:'Encerra o fluxo.'},
+];
+function ntype(k){return nodeTypes.find(n=>n.kind===k)||nodeTypes[0];}
+let fluxos=[
+  {id:'f1',nome:'Qualificação inicial',trigger:'new_contact',nodes:[
+    {kind:'content',body:'Oi {nome}! 💛 Sou a Sofia do Clube Carvão. Vi seu interesse!'},
+    {kind:'menu',body:'Pra te ajudar: qual a data do evento e quantos convidados?'},
+    {kind:'action',body:'etiqueta: interessado'},
+    {kind:'content',body:'Perfeito! Te mando 3 opções de orçamento agora 📋'},
+    {kind:'action',body:'enviar mídia: Tabela de pacotes'},
+    {kind:'end',body:''},
+  ]},
+  {id:'f2',nome:'Reativar lead frio',trigger:'inactive',nodes:[
+    {kind:'delay',body:'7 dias sem resposta'},
+    {kind:'channel',body:'E-mail + SMS (proativo — sem WhatsApp não-oficial)'},
+    {kind:'content',body:'Oi {nome}, ainda pensando no seu evento? 😊 Posso segurar uma data?'},
+    {kind:'delay',body:'+ 8 dias (total 15d)'},
+    {kind:'channel',body:'WhatsApp template oficial Meta (reabre conversa com aprovação)'},
+    {kind:'content',body:'Template "reengajamento_evento" aprovado pelo Meta'},
+    {kind:'cond',body:'respondeu?'},
+    {kind:'action',body:'SIM → etiqueta: interessado · NÃO → etiqueta: frio → arquivar em 30d'},
+    {kind:'end',body:''},
+  ]},
+];
+let fluxoAtivo='f1';
+function renderFluxoList(){
+  document.getElementById('fluxoList').innerHTML=fluxos.map(f=>`<div onclick="abrirFluxo('${f.id}')" class="p-2.5 rounded-lg clk text-sm ${f.id===fluxoAtivo?'bg-brand-50 text-brand-700 font-semibold':'hover:bg-gray-50'}">🔧 ${f.nome}<div class="text-[10px] ${f.id===fluxoAtivo?'text-brand-500':'text-gray-400'}">${f.nodes.length} passos</div></div>`).join('');
+}
+function abrirFluxo(id){fluxoAtivo=id;renderFluxo();}
+function novoFluxo(){const id='f'+Date.now();fluxos.push({id,nome:'Novo fluxo',trigger:'manual',nodes:[{kind:'content',body:'Escreva a primeira mensagem…'},{kind:'end',body:''}]});fluxoAtivo=id;renderFluxo();toast('Fluxo criado ✓');}
+function salvarFluxoNome(el){const f=fluxos.find(x=>x.id===fluxoAtivo);if(f){f.nome=el.textContent.trim();renderFluxoList();toast('Nome salvo ✓');}}
+function addNode(kind){const f=fluxos.find(x=>x.id===fluxoAtivo);if(!f)return;const endIdx=f.nodes.findIndex(n=>n.kind==='end');const novo={kind,body:''};if(endIdx>=0)f.nodes.splice(endIdx,0,novo);else f.nodes.push(novo);renderFluxo();}
+function rmNode(i){const f=fluxos.find(x=>x.id===fluxoAtivo);if(f){f.nodes.splice(i,1);renderFluxo();toast('Passo removido');}}
+function editNode(i,val){const f=fluxos.find(x=>x.id===fluxoAtivo);if(f&&f.nodes[i]){f.nodes[i].body=val;}}
+function renderFluxo(){
+  const f=fluxos.find(x=>x.id===fluxoAtivo);if(!f)return;
+  renderFluxoList();
+  document.getElementById('fluxoNome').textContent=f.nome;
+  document.getElementById('fluxoTrigger').value=f.trigger;
+  document.getElementById('fluxoCanvas').innerHTML=f.nodes.map((n,i)=>{
+    const t=ntype(n.kind);
+    return`${i>0?'<div class="flex justify-center"><div style="width:2px;height:18px;background:#d1d5db"></div></div>':''}
+    <div class="card p-0 overflow-hidden" style="border-left:4px solid ${t.cor}">
+      <div class="flex items-center gap-2 px-3 py-2" style="background:${t.cor}0d">
+        <span>${t.icon}</span><span class="font-semibold text-sm" style="color:${t.cor}">${t.label}</span>
+        ${n.kind!=='end'?`<button onclick="rmNode(${i})" class="ml-auto text-gray-300 hover:text-red-400 clk text-sm">🗑</button>`:''}
+      </div>
+      ${n.kind!=='end'?`<div class="px-3 py-2"><div class="text-sm text-gray-700" contenteditable="true" onblur="editNode(${i},this.textContent)" placeholder="${t.hint}">${n.body||''}</div>${!n.body?`<div class="text-[11px] text-gray-300 -mt-5 pointer-events-none">${t.hint}</div>`:''}</div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('fluxoAddBtns').innerHTML='<span class="text-xs text-gray-400 self-center mr-1">+ adicionar passo:</span>'+nodeTypes.filter(t=>t.kind!=='end').map(t=>`<button onclick="addNode('${t.kind}')" class="text-xs border px-2.5 py-1.5 rounded-lg clk hover:shadow-sm" style="border-color:${t.cor}55;color:${t.cor}">${t.icon} ${t.label}</button>`).join('');
+}
+renderFluxo();
+
+/* ═══ LEADS ANTIGOS / INATIVIDADE ═══ */
+// régua de temperatura por dias sem resposta
+function leadTemp(h){
+  const d=Math.floor(h/24);
+  if(h<96)  return{t:'ativo',label:'Ativo',cor:'#10b981',dias:d,acao:'IA cuidando'};
+  if(h<360) return{t:'esfriando',label:'Esfriando',cor:'#f59e0b',dias:d,acao:'Follow-up automático'};
+  if(h<720) return{t:'frio',label:'Frio',cor:'#f97316',dias:d,acao:'Reativar ou arquivar'};
+  return{t:'dormindo',label:'Dormindo',cor:'#94a3b8',dias:d,acao:'Arquivar / campanha resgate'};
+}
+// regras de envelhecimento automático
+const regrasIdade=[
+  {gatilho:'7 dias sem resposta',acao:'Follow-up automático por e-mail (✉️) e SMS (📱) — nunca WhatsApp',ativo:true},
+  {gatilho:'15 dias sem resposta',acao:'Etiqueta "frio" + reativação por e-mail/SMS ou WhatsApp template oficial',ativo:true},
+  {gatilho:'30 dias sem resposta',acao:'Move para Arquivados (sai do funil ativo)',ativo:true},
+  {gatilho:'Cliente pós-evento +90 dias',acao:'Campanha de recompra/indicação por e-mail',ativo:false},
+];
+let selAntigos=new Set();
+function openLeadsAntigos(){
+  // ordena do mais frio pro mais quente
+  const ord=[...leads].filter(l=>l.st<5).sort((a,b)=>b.lastContactH-a.lastContactH);
+  const grupos={dormindo:[],frio:[],esfriando:[],ativo:[]};
+  ord.forEach(l=>grupos[leadTemp(l.lastContactH).t].push(l));
+  selAntigos.clear();
+  const grupoBlock=(key,titulo,desc)=>{const arr=grupos[key];if(!arr.length)return '';const c=leadTemp(arr[0].lastContactH).cor;return`
+    <div class="mb-4">
+      <div class="flex items-center gap-2 mb-2"><span class="w-2.5 h-2.5 rounded-full" style="background:${c}"></span><span class="font-semibold text-sm">${titulo}</span><span class="chip bg-gray-100 text-gray-500">${arr.length}</span><span class="text-[11px] text-gray-400">${desc}</span></div>
+      <div class="space-y-1.5">${arr.map(l=>{const tp=leadTemp(l.lastContactH);return`
+        <label class="card p-2.5 flex items-center gap-3 clk hover:bg-gray-50">
+          <input type="checkbox" onchange="this.checked?selAntigos.add('${l.nome}'):selAntigos.delete('${l.nome}');document.getElementById('antigosCount').textContent=selAntigos.size" class="accent-brand-500">
+          <div class="flex-1 min-w-0"><div class="font-semibold text-sm truncate">${l.nome}</div><div class="text-[11px] text-gray-400">${stages[l.st].n} · R$${l.val}k · ${l.tags.map(t=>tagDef(t).nome).join(', ')||'sem etiqueta'}</div></div>
+          <div class="text-right shrink-0"><div class="text-xs font-bold" style="color:${tp.cor}">${tp.dias}d parado</div><div class="text-[10px] text-gray-400">${tp.acao}</div></div>
+        </label>`;}).join('')}</div>
+    </div>`;};
+  const body=`
+    <div class="card p-4 mb-4 bg-brand-50/40 border-l-4 border-brand-400 text-sm text-gray-600">🧹 Leads são classificados pela <b>inatividade</b>. A IA já age sozinha (follow-up/etiqueta/arquivo), mas aqui você resolve em lote o que ficou parado.</div>
+    <div class="flex items-center justify-between mb-3 sticky top-0 bg-white py-2 z-10">
+      <div class="text-xs text-gray-500"><b id="antigosCount">0</b> selecionados</div>
+      <div class="flex gap-1.5">
+        <button onclick="acaoAntigos('reativar')" class="text-xs bg-brand-500 text-white px-2.5 py-1.5 rounded-lg clk font-semibold">🔄 Reativar</button>
+        <button onclick="acaoAntigos('frio')" class="text-xs border border-amber-300 text-amber-700 px-2.5 py-1.5 rounded-lg clk">🏷️ Marcar frio</button>
+        <button onclick="acaoAntigos('arquivar')" class="text-xs border border-gray-300 text-gray-500 px-2.5 py-1.5 rounded-lg clk">📥 Arquivar</button>
+      </div>
+    </div>
+    ${grupoBlock('dormindo','💤 Dormindo (30d+)','candidatos a arquivar')}
+    ${grupoBlock('frio','🧊 Frios (15–30d)','reativar agora ou perde')}
+    ${grupoBlock('esfriando','🌡️ Esfriando (4–15d)','follow-up rodando')}
+    ${grupoBlock('ativo','🔥 Ativos (<4d)','IA no controle')}
+    <div class="mt-5 pt-4 border-t border-gray-100">
+      <div class="font-bold text-sm text-gray-700 mb-2">⚙️ Regras automáticas de envelhecimento</div>
+      <div class="space-y-1.5">${regrasIdade.map((r,i)=>`<div class="card p-2.5 flex items-center gap-2"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" ${r.ativo?'checked':''} class="sr-only peer" onchange="regrasIdade[${i}].ativo=this.checked;toast(this.checked?'Regra ativada':'Regra pausada')"><div class="w-9 h-5 bg-gray-200 peer-checked:bg-green-500 rounded-full peer after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div></label><div class="flex-1"><div class="text-xs font-semibold">${r.gatilho}</div><div class="text-[11px] text-gray-400">→ ${r.acao}</div></div></div>`).join('')}</div>
+    </div>`;
+  openDrawer('🧹 Organizar leads antigos',body);
+}
+function acaoAntigos(tipo){
+  if(!selAntigos.size){toast('Selecione leads primeiro');return;}
+  const n=selAntigos.size;
+  if(tipo==='reativar'){selAntigos.forEach(nome=>{const l=leads.find(x=>x.nome===nome);if(l){l.lastContactH=1;if(!l.tags.includes('interessado'))l.tags.push('interessado');}});toast(`${n} leads reativados — fluxo de resgate disparado ✓`);}
+  if(tipo==='frio'){selAntigos.forEach(nome=>{const l=leads.find(x=>x.nome===nome);if(l&&!l.tags.includes('escalado_ia_sem_resposta'))l.tags.push('escalado_ia_sem_resposta');});toast(`${n} marcados como frio`);}
+  if(tipo==='arquivar'){if(!confirm(`Arquivar ${n} leads? Saem do funil ativo (reversível).`))return;toast(`${n} leads arquivados`);}
+  persist();refreshTagViews();openLeadsAntigos();
+}
+
+/* ═══ EDIÇÃO INLINE DE LEADS ═══ */
+function saveNote(nome,val){const l=leads.find(x=>x.nome===nome);if(l){l.nota=val;persist();toast('Anotação salva ✓');}}
+// ─── tarefas reais por lead (persistem no objeto) ───
+function toggleTodo(nome,i){const l=leads.find(x=>x.nome===nome);if(l&&l.todos[i]){l.todos[i].done=!l.todos[i].done;persist();toast(l.todos[i].done?'Tarefa concluída ✓':'Tarefa reaberta');renderAIPanel();}}
+function addTodo(nome,txt){txt=(txt||'').trim();if(!txt)return;const l=leads.find(x=>x.nome===nome);if(l){l.todos.push({txt,done:false});persist();toast('Tarefa adicionada ✓');renderAIPanel();}}
+function fazerAgora(nome){const l=leads.find(x=>x.nome===nome);if(!l)return;const t=l.todos.find(x=>!x.done);if(t){t.done=true;persist();toast('Feito: '+t.txt+' ✓');renderAIPanel();}else{toast('Tudo concluído 🎉');}}
+function filterByTagAndGo(id){show('funil',document.querySelectorAll('.nav-item')[1]);tagFilter=id;buildKanban();renderTagBar();}
+function saveLeadField(nome,field,el){
+  const l=leads.find(x=>x.nome===nome);if(!l)return;
+  const v=el.tagName==='SELECT'?el.value:el.textContent.trim();
+  if(field==='st'){l.st=parseInt(v);}
+  else if(field==='val'||field==='conv'){l[field]=parseInt(v)||l[field];}
+  else{l[field]=v;}
+  persist();
+  if(field==='st'){if(typeof buildKanban==='function')buildKanban();if(typeof buildClientes==='function')buildClientes();}
+  toast('Salvo ✓');
+}
+
+/* ═══ CONFIG MODAL ═══ */
+function openConfig(){
+  document.getElementById('cfgStages').innerHTML=stages.map((s,i)=>`
+    <div class="field-wrap flex items-center gap-3">
+      <span class="w-3 h-3 rounded-full shrink-0" style="background:${s.c}"></span>
+      <div contenteditable="true" class="flex-1 text-sm font-medium" onblur="stages[${i}].n=this.textContent.trim();toast('Etapa renomeada ✓')">${s.n}</div>
+      <input type="color" value="${s.c}" onchange="stages[${i}].c=this.value" class="w-7 h-7 rounded cursor-pointer border-none p-0" title="Cor">
+    </div>`).join('');
+  document.getElementById('configModal').classList.add('open');
+}
+function closeConfig(){document.getElementById('configModal').classList.remove('open');}
+function saveConfig(){closeConfig();toast('✅ Configurações salvas!');}
+function saveClientName(el){
+  const v=el.textContent.trim();
+  const cfg=document.getElementById('cfgClientName');if(cfg)cfg.textContent=v;
+  toast('Nome do cliente atualizado ✓');
+}
+function syncClientName(el){
+  const v=el.textContent.trim();
+  const disp=document.getElementById('clientNameDisplay');if(disp)disp.textContent=v;
+  toast('Nome do cliente atualizado ✓');
+}
+function syncMeta(el){
+  const v=el.textContent.trim();
+  toast('Meta atualizada ✓');
+}
+function syncUserName(el){
+  const v=el.textContent.trim();
+  const disp=document.getElementById('userNameDisplay');if(disp)disp.textContent=v;
+  const av=document.getElementById('userAvatar');if(av)av.textContent=v[0]?.toUpperCase()||'G';
+  toast('Nome atualizado ✓');
+}
+
+renderInboxList();renderChat();renderAIPanel();renderChatQuick();
+
+/* ═══ INSTÂNCIA LIMPA — empty states nos containers sem dados ═══ */
+(function emptyStates(){
+  const map={
+    clientesList:['👥','Nenhum cliente ainda','Quem fechar negócio aparece aqui.'],
+    followupList:['⏰','Nenhum follow-up ativo','Leads sem resposta entram na cadência automaticamente.'],
+    vozCallList:['🎙️','Nenhuma call registrada','As ligações da Voz IA aparecem aqui.'],
+    campanhaList:['📣','Nenhuma campanha criada','Clique em "+ Nova campanha" para começar.'],
+    agendaList:['📅','Nenhum agendamento','A IA agenda visitas e degustações aqui.'],
+    iaLog:['📋','Sem atividade ainda','O log da Sofia IA aparece quando ela começa a atender.'],
+  };
+  for(const [id,[ic,tit,sub]] of Object.entries(map)){
+    const e=document.getElementById(id);
+    if(e && !(e.innerHTML||'').trim()) e.innerHTML=`<div class="card p-10 text-center text-gray-400"><div class="text-4xl mb-2">${ic}</div><div class="font-medium text-sm mb-1">${tit}</div><div class="text-xs">${sub}</div></div>`;
+  }
+  // pendências agrupadas (pendList) já trata vazio; reforça
+  const pl=document.getElementById('pendList');
+  if(pl && !(pl.innerHTML||'').trim()) pl.innerHTML='<div class="p-10 text-center text-gray-400"><div class="text-4xl mb-2">✅</div><div class="font-medium text-sm">Tudo em dia</div><div class="text-xs">Sem pendências no momento.</div></div>';
+})();
+</script>
+</body>
+</html>
