@@ -4,7 +4,7 @@ CRM vertical para **buffets e espaços de eventos** (casamentos, confraternizaç
 
 No centro: a **Sofia**, um SDR de IA que responde em menos de 1 minuto em qualquer canal, qualifica o lead (data + nº de convidados + orçamento), envia faixas de preço e **agenda a call do closer humano** — que passa a focar só em fechar.
 
-Este repositório é um **protótipo de interface 100% front-end, sem build e sem dependências**. Todos os dados são fictícios (mock) — feito para **validação de fluxo, apresentação comercial e ponto de partida de UI**. O cliente de exemplo na demo é o espaço **Clubr**.
+Este repositório é um **protótipo de interface 100% front-end, sem build e sem dependências**. Todos os dados são fictícios (mock) — feito para **validação de fluxo, apresentação comercial e ponto de partida de UI**.
 
 ## Telas inclusas
 
